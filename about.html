@@ -31,6 +31,9 @@
           <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
         </ul>
       </nav>
+      <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i> <!-- Default to dark mode icon -->
+      </button>
     </div>
   </header>
 
@@ -99,6 +102,34 @@
       }
     });
   </script>
+
+<script>
+  // Theme Toggle Functionality
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+// Check for saved theme in localStorage
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+body.setAttribute('data-theme', savedTheme);
+updateToggleIcon(savedTheme);
+} else {
+body.setAttribute('data-theme', 'dark'); // Default to dark mode
+}
+
+themeToggle.addEventListener('click', () => {
+const currentTheme = body.getAttribute('data-theme');
+const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+body.setAttribute('data-theme', newTheme);
+localStorage.setItem('theme', newTheme);
+updateToggleIcon(newTheme);
+});
+
+function updateToggleIcon(theme) {
+const icon = theme === 'dark' ? 'fa-moon' : 'fa-sun';
+themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
+}
+</script>
 
 </body>
 

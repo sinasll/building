@@ -1,4 +1,22 @@
 /* General Reset and Setup */
+:root {
+  /* Dark Mode Colors */
+  --background-color: #000;
+  --text-color: #E6B33C; /* Gold text in dark mode */
+  --accent-color: #E6B33C; /* Gold accents in dark mode */
+  --border-color: #E6B33C; /* Gold borders in dark mode */
+  --icon-color: #E6B33C; /* Gold icons in dark mode */
+}
+
+[data-theme="light"] {
+  /* Light Mode Colors (Opposite of Dark Mode) */
+  --background-color: #E6B33C; /* Gold background in light mode */
+  --text-color: #000; /* Black text in light mode */
+  --accent-color: #000; /* Black accents in light mode */
+  --border-color: #000; /* Black borders in light mode */
+  --icon-color: #000; /* Black icons in light mode */
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -7,30 +25,33 @@
 
 body {
   font-family: 'Press Start 2P', sans-serif;
-  background-color: #000;
-  color: #f8f8f8;
+  background-color: var(--background-color);
+  color: var(--text-color);
   line-height: 1.6;
   font-size: 14px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
   text-decoration: none;
+  color: var(--text-color);
 }
 
 /* Header Styles */
 header {
-  background-color: #000;
+  background-color: var(--background-color);
   padding: 50px 0;
   position: fixed;
   width: 100%;
   top: 0;
   z-index: 1000;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .logo {
   width: 5em;
   height: auto;
-  border: 1px solid rgb(133, 133, 133);
+  border: 1px solid var(--border-color);
 }
 
 .header-container {
@@ -40,6 +61,16 @@ header {
   padding: 0 60px;
   max-width: 100%;
   text-align: center;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-color);
+  margin-left: 20px;
 }
 
 /* Hamburger Menu */
@@ -53,7 +84,7 @@ header {
 .hamburger span {
   width: 25px;
   height: 3px;
-  background-color: #E6B33C;
+  background-color: var(--text-color);
   margin: 4px 0;
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
@@ -77,7 +108,7 @@ header {
 }
 
 .nav-list li a {
-  color: #E6B33C;
+  color: var(--text-color);
   font-size: 16px;
   font-weight: bold;
   text-decoration: none;
@@ -89,8 +120,8 @@ header {
 }
 
 .nav-list li a.active {
-  background-color: #E6B33C;
-  color: #000;
+  background-color: var(--accent-color);
+  color: var(--background-color);
   padding: 12px;
   border-radius: 4px;
   display: inline-flex;
@@ -100,6 +131,7 @@ header {
 
 .nav-list li a i {
   font-size: 18px;
+  color: var(--icon-color);
 }
 
 /* Mobile Navigation */
@@ -111,20 +143,20 @@ header {
   .nav-menu {
       position: fixed;
       top: 0;
-      right: -100%; /* Start off-screen */
-      width: 70%; /* Adjust width as needed */
+      right: -100%;
+      width: 70%;
       height: 100vh;
-      background-color: #000;
-      border-left: 2px solid #E6B33C;
+      background-color: var(--background-color);
+      border-left: 2px solid var(--border-color);
       flex-direction: column;
       justify-content: flex-start;
-      padding-top: 80px; /* Space for the header */
+      padding-top: 80px;
       transition: right 0.4s ease-in-out;
       z-index: 1000;
   }
 
   .nav-menu.active {
-      right: 0; /* Slide in from the right */
+      right: 0;
   }
 
   .nav-list {
@@ -141,15 +173,16 @@ header {
       justify-content: flex-start;
       width: 100%;
   }
-
-  .hamburger.active span {
-    opacity: 0; /* Hide all bars */
-    transition: opacity 0.3s ease;
 }
 
-/*h1 style */
+.hamburger.active span {
+  opacity: 0; /* Hide all bars */
+  transition: opacity 0.3s ease;
+}
+
+/* h1 style */
 .stats {
-  color: #E6B33C;
+  color: var(--accent-color);
   font-size: 20px;
   text-align: center;
   margin-bottom: 10px;
@@ -179,8 +212,8 @@ main {
 
 .nav-btn {
   font-family: 'Press Start 2P', sans-serif;
-  background-color: #E6B33C;
-  color: #000;
+  background-color: var(--accent-color);
+  color: var(--background-color);
   border: none;
   padding: 10px 20px;
   cursor: pointer;
@@ -192,7 +225,7 @@ main {
 .calendar-header {
   font-size: 10px;
   font-weight: bold;
-  color: #E6B33C;
+  color: var(--accent-color);
   margin: 0 10px;
 }
 
@@ -205,7 +238,7 @@ main {
 }
 
 .stat-card {
-  border: 1px solid #E6B33C;
+  border: 1px solid var(--accent-color);
   border-radius: 10px;
   padding: 30px;
   margin: 10px;
@@ -216,12 +249,12 @@ main {
 
 .stat-card h3 {
   font-size: 16px;
-  color: #E6B33C;
+  color: var(--accent-color);
   margin-bottom: 15px;
 }
 
 footer {
-  background-color: #000;
+  background-color: var(--background-color);
   padding: 12px 0;
   position: fixed;
   width: 100%;
@@ -231,7 +264,7 @@ footer {
 }
 
 footer p {
-  color: #E6B33C;
+  color: var(--accent-color);
   font-size: 10px;
   font-weight: bold;
 }
