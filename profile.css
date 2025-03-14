@@ -150,9 +150,15 @@ header {
       border-left: 2px solid var(--border-color);
       flex-direction: column;
       justify-content: flex-start;
-      padding-top: 80px;
+      padding-top: 0px;
       transition: right 0.4s ease-in-out;
       z-index: 1000;
+  }
+
+  .logotxt {
+    margin-top: 70px;
+    margin-bottom: 40px;
+    font-size: 20px;
   }
 
   .nav-menu.active {
