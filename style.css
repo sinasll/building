@@ -142,18 +142,9 @@ header {
       width: 100%;
   }
 
-  /* Hamburger to X animation */
-  .hamburger.active span:nth-child(1) {
-      transform: rotate(-45deg) translate(-5px, 6px);
-  }
-
-  .hamburger.active span:nth-child(2) {
-      opacity: 0;
-  }
-
-  .hamburger.active span:nth-child(3) {
-      transform: rotate(45deg) translate(-5px, -6px);
-  }
+  .hamburger.active span {
+    opacity: 0; /* Hide all bars */
+    transition: opacity 0.3s ease;
 }
 
 
@@ -207,7 +198,7 @@ header {
 
 /* Main Content Styling */
 main {
-  padding-top: 40%; /* Space for fixed header */
+  padding-top: 45%; /* Space for fixed header */
   padding-bottom: 20%;
   padding-left: 15px;
   padding-right: 15px;

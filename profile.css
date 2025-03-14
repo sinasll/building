@@ -114,7 +114,7 @@ header {
       right: -100%; /* Start off-screen */
       width: 70%; /* Adjust width as needed */
       height: 100vh;
-      background-color: #000;
+      background-color: #000000;
       border-left: 2px solid #E6B33C;
       flex-direction: column;
       justify-content: flex-start;
@@ -142,18 +142,9 @@ header {
       width: 100%;
   }
 
-  /* Hamburger to X animation */
-  .hamburger.active span:nth-child(1) {
-      transform: rotate(-45deg) translate(-5px, 6px);
-  }
-
-  .hamburger.active span:nth-child(2) {
-      opacity: 0;
-  }
-
-  .hamburger.active span:nth-child(3) {
-      transform: rotate(45deg) translate(-5px, -6px);
-  }
+  .hamburger.active span {
+    opacity: 0; /* Hide all bars */
+    transition: opacity 0.3s ease;
 }
 
 /* User Info and Wallet Button Styling */
@@ -315,7 +306,7 @@ header {
 
 /* Main Content Styling */
 main {
-  padding-top: 40%;
+  padding-top: 45%;
   padding-bottom: 20%;
   padding-left: 15px;
   padding-right: 15px;
