@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <title>PipCore</title>
-  <link href="profile.css" rel="stylesheet" type="text/css" />
+  <link href="profile.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -31,41 +30,34 @@
         </ul>
       </nav>
       <button class="theme-toggle" id="theme-toggle">
-        <i class="fas fa-moon"></i> <!-- Default to dark mode icon -->
+        <i class="fas fa-moon"></i>
       </button>
     </div>
   </header>
 
   <main>
-    <!-- User Info Section -->
     <div class="user-info">
       <p id="username" class="username">@username</p>
     </div>
     
     <div>
-      <button>test</button>
-      </div>
+      <button>Test Button</button>
+    </div>
 
-    <!-- Invite Friends Section -->
     <div class="invite-container">
       <div class="invite-card">
-        <!-- Invite Header -->
         <div class="invite-header">
           <h2>Invite Traders</h2>
         </div>
-
-        <!-- Invite Content -->
         <div class="invite-content">
-          <!-- Share Buttons -->
           <div class="share-buttons">
             <a href="https://t.me/share/url?url=https://t.me/pipcorebot?profile&text=Join%20PipCore%20and%20track%20your%20trading%20journey!%20PipCore%20is%20all%20you%20need." 
                class="cta-button telegram-button">
-                share PipCore
+                Share PipCore
             </a>
           </div>
-          <!-- Share Link Box -->
           <div class="share-link-box">
-            <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
+            <button class="copy-button">Copy Link</button>
           </div>
         </div>
       </div>
@@ -73,108 +65,93 @@
   </main>
 
   <script>
-    // Ensure Telegram WebApp is available
-    let tg = window.Telegram.WebApp;
-    
-    // Get the Telegram username
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        let username = tg.initDataUnsafe.user.username || "Unknown";
-        document.getElementById("username").textContent = "@" + username;
-    } else {
-        document.getElementById("username").textContent = "@guest";
-    }
-  </script>
+    // Telegram Web App Initialization
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.MainButton.hide();
 
-  <script>
-    // Function to vibrate the device
-    function vibrate() {
-      if (navigator.vibrate) {
-        navigator.vibrate(50); // Vibrate for 50ms
-      } else {
-        console.log("Vibration not supported on this device.");
+    // Set username
+    document.getElementById('username').textContent = 
+      `@${tg.initDataUnsafe?.user?.username || 'guest'}`;
+
+    // Enhanced Vibration System
+    const vibrationSystem = {
+      supported: typeof navigator.vibrate === 'function' || 
+                (window.webkit && window.webkit.messageHandlers.vibrate),
+
+      pulse: function(duration = 100) {
+        if (!this.supported) return false;
+        try {
+          if (navigator.vibrate) return navigator.vibrate(duration);
+          if (window.webkit?.messageHandlers?.vibrate) {
+            window.webkit.messageHandlers.vibrate.postMessage(duration);
+            return true;
+          }
+        } catch (e) {
+          console.error('Vibration error:', e);
+          return false;
+        }
       }
-    }
+    };
 
-    // Add vibration to ALL buttons and links
+    // Universal Interaction Handler
     document.addEventListener('click', (event) => {
-      if (
-        event.target.tagName === 'BUTTON' ||
-        event.target.tagName === 'A' ||
-        event.target.closest('button') ||
-        event.target.closest('a')
-      ) {
-        vibrate(); // Trigger vibration on click
+      const interactiveElements = [
+        'BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA',
+        '[role="button"]', '[onclick]', '[data-clickable]'
+      ];
+      
+      const isInteractive = interactiveElements.some(selector => 
+        event.target.matches(selector) || 
+        event.target.closest(selector)
+      );
+
+      if (isInteractive) {
+        vibrationSystem.pulse(50);
       }
     });
 
-    // Existing copyToClipboard function
-    function copyToClipboard() {
-      const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot?profile";
-      navigator.clipboard.writeText(message).then(() => {
-        alert("Message and link copied to clipboard!");
-      }).catch(err => {
-        console.error('Failed to copy:', err);
-      });
-    }
-  </script>
+    // Copy to Clipboard with Feedback
+    document.querySelector('.copy-button').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(
+          "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot?profile"
+        );
+        tg.showAlert('Copied to clipboard!');
+      } catch (err) {
+        tg.showAlert('Failed to copy!');
+      }
+    });
 
-  <script>
-    // Hamburger menu functionality
+    // Hamburger Menu
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('nav-menu');
-
     hamburger.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        hamburger.classList.toggle('active');
+      navMenu.classList.toggle('active');
+      hamburger.classList.toggle('active');
     });
 
-    // Add active class to the clicked navigation item
-    const navLinks = document.querySelectorAll('.nav-list li a');
-
-    navLinks.forEach(link => {
-      link.addEventListener('click', function (e) {
-        // Remove active class from all links
-        navLinks.forEach(link => link.classList.remove('active'));
-        // Add active class to the clicked link
-        this.classList.add('active');
-      });
-    });
-
-    // Set active class based on current page
-    const currentPage = window.location.pathname.split('/').pop() || 'profile.html'; // Default to profile.html
-    navLinks.forEach(link => {
-      if (link.getAttribute('href') === currentPage) {
-        link.classList.add('active');
-      }
-    });
-  </script>
-
-  <script>
-    // Theme Toggle Functionality
+    // Theme Management
     const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
+    const updateTheme = (theme = 'dark') => {
+      body.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      themeToggle.innerHTML = `<i class="fas fa-${theme === 'dark' ? 'moon' : 'sun'}"></i>`;
+    };
 
-    // Check for saved theme in localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      body.setAttribute('data-theme', savedTheme);
-      updateToggleIcon(savedTheme);
-    } else {
-      body.setAttribute('data-theme', 'dark'); // Default to dark mode
-    }
+    updateTheme(localStorage.getItem('theme') || 'dark');
+    themeToggle.addEventListener('click', () => 
+      updateTheme(body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')
+    );
 
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = body.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      updateToggleIcon(newTheme);
+    // Navigation Active State
+    document.querySelectorAll('.nav-list li a').forEach(link => {
+      link.classList.toggle('active', 
+        link.getAttribute('href') === window.location.pathname.split('/').pop()
+      );
     });
-
-    function updateToggleIcon(theme) {
-      const icon = theme === 'dark' ? 'fa-moon' : 'fa-sun';
-      themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
-    }
   </script>
 </body>
 </html>
