@@ -40,7 +40,7 @@ a {
 /* Header Styles */
 header {
   background-color: var(--background-color);
-  padding: 50px 0;
+  padding: 20px 0;
   position: fixed;
   width: 100%;
   top: 0;
@@ -196,7 +196,7 @@ header {
 
 /* Calendar Container */
 main {
-  padding-top: 45%; /* Space for fixed header */
+  padding-top: 35%;
   padding-bottom: 20%;
   padding-left: 15px;
   padding-right: 15px;
