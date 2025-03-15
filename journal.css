@@ -237,6 +237,58 @@ form button {
   cursor: pointer;
 }
 
+/* Filter Container Styling */
+#filterContainer {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#filterContainer label {
+  font-size: 16px;
+  color: var(--text-color);
+}
+
+#filterContainer select {
+  font-family: 'Press Start 2P', sans-serif;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 0px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+#customDateContainer {
+  margin-top: 10px;
+  display: none;
+}
+
+#customDateContainer label {
+  font-size: 16px;
+  color: var(--text-color);
+}
+
+#customDateContainer input {
+  font-family: 'Press Start 2P', sans-serif;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 0px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+#clearFilter {
+  font-family: 'Press Start 2P', sans-serif;
+  padding: 8px 16px;
+  background-color: var(--accent-color);
+  color: var(--background-color);
+  font-weight: bold;
+  border: none;
+  border-radius: 0px;
+  cursor: pointer;
+  margin-top: 10px;
+}
 
 /* History Section Styling */
 .history {
