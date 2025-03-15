@@ -68,25 +68,19 @@
     </div>
   </main>
 
- <script>
-  // Ensure Telegram WebApp is available
-  let tg = window.Telegram.WebApp;
-
-  // Initialize the Web App and set viewport_fixed to true
-  tg.ready();
-  tg.expand(); // This fixes the viewport
-  tg.MainButton.show();
-  tg.enableClosingConfirmation();
-
-  // Get the Telegram username
-  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      let username = tg.initDataUnsafe.user.username || "Unknown";
-      document.getElementById("username").textContent = "@" + username;
-  } else {
-      document.getElementById("username").textContent = "@guest";
-  }
-</script>
-
+  <script>
+    // Ensure Telegram WebApp is available
+    let tg = window.Telegram.WebApp;
+    
+    // Get the Telegram username
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        let username = tg.initDataUnsafe.user.username || "Unknown";
+        document.getElementById("username").textContent = "@" + username;
+    } else {
+        document.getElementById("username").textContent = "@guest";
+    }
+  </script>
+  
   <script>
     function copyToClipboard() {
         const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot?profile";
