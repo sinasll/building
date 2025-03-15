@@ -80,15 +80,37 @@
         document.getElementById("username").textContent = "@guest";
     }
   </script>
-  
+
   <script>
+    // Function to vibrate the device
+    function vibrate() {
+      if (navigator.vibrate) {
+        navigator.vibrate(50); // Vibrate for 50ms
+      } else {
+        console.log("Vibration not supported on this device.");
+      }
+    }
+
+    // Add vibration to ALL buttons and links
+    document.addEventListener('click', (event) => {
+      if (
+        event.target.tagName === 'BUTTON' ||
+        event.target.tagName === 'A' ||
+        event.target.closest('button') ||
+        event.target.closest('a')
+      ) {
+        vibrate(); // Trigger vibration on click
+      }
+    });
+
+    // Existing copyToClipboard function
     function copyToClipboard() {
-        const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot?profile";
-        navigator.clipboard.writeText(message).then(() => {
-            alert("Message and link copied to clipboard!");
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-        });
+      const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot?profile";
+      navigator.clipboard.writeText(message).then(() => {
+        alert("Message and link copied to clipboard!");
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+      });
     }
   </script>
 
@@ -125,31 +147,30 @@
 
   <script>
     // Theme Toggle Functionality
-const themeToggle = document.getElementById('theme-toggle');
-const body = document.body;
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
 
-// Check for saved theme in localStorage
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-  body.setAttribute('data-theme', savedTheme);
-  updateToggleIcon(savedTheme);
-} else {
-  body.setAttribute('data-theme', 'dark'); // Default to dark mode
-}
+    // Check for saved theme in localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      body.setAttribute('data-theme', savedTheme);
+      updateToggleIcon(savedTheme);
+    } else {
+      body.setAttribute('data-theme', 'dark'); // Default to dark mode
+    }
 
-themeToggle.addEventListener('click', () => {
-  const currentTheme = body.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  body.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  updateToggleIcon(newTheme);
-});
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateToggleIcon(newTheme);
+    });
 
-function updateToggleIcon(theme) {
-  const icon = theme === 'dark' ? 'fa-moon' : 'fa-sun';
-  themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
-}
+    function updateToggleIcon(theme) {
+      const icon = theme === 'dark' ? 'fa-moon' : 'fa-sun';
+      themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
+    }
   </script>
-  
 </body>
 </html>
