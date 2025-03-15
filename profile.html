@@ -91,26 +91,6 @@
         });
     }
   </script>
-  
-  <script>
-  // Function to vibrate the device
-  function vibrate() {
-    if (navigator.vibrate) {
-      // Vibrate for 50 milliseconds
-      navigator.vibrate(50);
-    } else {
-      console.log("Vibration not supported on this device.");
-    }
-  }
-
-  // Add vibration to ALL buttons
-  document.addEventListener('click', (event) => {
-    // Check if the clicked element is a button or a link with button-like behavior
-    if (event.target.tagName === 'BUTTON' || event.target.tagName === 'A' || event.target.closest('button') || event.target.closest('a')) {
-      vibrate(); // Trigger vibration on click
-    }
-  });
-</script>
 
   <script>
     // Hamburger menu functionality
