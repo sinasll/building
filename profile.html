@@ -69,8 +69,22 @@
   </main>
 
   <script>
-    // Ensure Telegram WebApp is available
-    let tg = window.Telegram.WebApp;
+// Telegram WebApp initialization
+let tg = window.Telegram.WebApp;
+
+// Function to show confirmation before closing the mini app
+function confirmClose() {
+    tg.showConfirm("Are you sure you want to close the app?", function(confirmed) {
+        if (confirmed) {
+            tg.close(); // Close the mini app if user confirms
+        }
+    });
+}
+
+// Example: Attach the confirmation to a button click
+document.getElementById('closeButton').addEventListener('click', function() {
+    confirmClose();
+});
     
     // Get the Telegram username
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
