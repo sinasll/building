@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <title>PipCore</title>
+
+  <!-- Styles & Fonts -->
   <link href="profile.css" rel="stylesheet" type="text/css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
@@ -31,35 +31,47 @@
         </ul>
       </nav>
       <button class="theme-toggle" id="theme-toggle">
-        <i class="fas fa-moon"></i> <!-- Default to dark mode icon -->
+        <i class="fas fa-moon"></i>
       </button>
     </div>
   </header>
 
   <main>
-    <!-- User Info Section -->
     <div class="user-info">
       <p id="username" class="username">@username</p>
     </div>
 
-    <!-- Invite Friends Section -->
+    <div class="task-container">
+      <div class="task-card">
+        <div class="task-buttons">
+          <!-- 1 -->
+          <a href="https://t.me/pipcore" target="_blank" class="task-button telegram-task">
+            JOIN PipCore
+          </a>
+
+          <!-- 2 -->
+          <a href="https://t.me/boost/pipcore" target="_blank" class="task-button telegram-task">
+            BOOST PipCore
+          </a>
+
+          <!-- 3 -->
+          <a href="https://x.com/pipcoretg" target="_blank" class="task-button twitter-task">
+            FOLLOW PipCore
+          </a>
+        </div>
+      </div>
+    </div>
+
     <div class="invite-container">
       <div class="invite-card">
-        <!-- Invite Header -->
-        <div class="invite-header">
-          <h2>Invite Traders</h2>
-        </div>
-
-        <!-- Invite Content -->
+        <div class="invite-header"><h2>Invite Traders</h2></div>
         <div class="invite-content">
-          <!-- Share Buttons -->
           <div class="share-buttons">
-            <a href="https://t.me/share/url?url=https://t.me/pipcorebot?profile&text=Join%20PipCore%20and%20track%20your%20trading%20journey!%20PipCore%20is%20all%20you%20need." 
+            <a href="https://t.me/share/url?url=https://t.me/pipcorebot&text=Join%20PipCore%20and%20track%20your%20trading%20journey!%20PipCore%20is%20all%20you%20need." 
                class="cta-button telegram-button">
-                share PipCore
+                Share PipCore
             </a>
           </div>
-          <!-- Share Link Box -->
           <div class="share-link-box">
             <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
           </div>
@@ -68,100 +80,62 @@
     </div>
   </main>
 
-<script>
-// Initialize the Telegram WebApp
-const tg = window.Telegram.WebApp;
-
-// Disable native scrolling (crucial to prevent minimize on scroll)
-tg.enableClosingConfirmation(); // Optional: Ask users to confirm before closing
-tg.isExpanded = true; // Keep the Mini App expanded
-tg.MainButton.show(); // Ensure the main button is visible (if needed)
-
-// Disable scrolling in the Mini App container
-tg.setHeaderColor(tg.headerColor); // Match header color to your app
-tg.disablePageScrolling(); // <-- THIS IS THE KEY LINE
-
-        // Get the Telegram username
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            let username = tg.initDataUnsafe.user.username || "Unknown";
-            console.log("Username found:", username); // Debugging: Log the username
-            document.getElementById("username").textContent = "@" + username;
-        } else {
-            console.log("Username not found or initDataUnsafe is unavailable."); // Debugging
-            document.getElementById("username").textContent = "@guest";
-        }
-    });
-</script>
-
+  <!-- Scripts -->
   <script>
-    function copyToClipboard() {
-        const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot?profile";
-        navigator.clipboard.writeText(message).then(() => {
-            alert("Message and link copied to clipboard!");
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-        });
+    // Telegram WebApp initialization
+    let tg = window.Telegram.WebApp;
+
+    // Rest of your existing code
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      let username = tg.initDataUnsafe.user.username || "Unknown";
+      document.getElementById("username").textContent = "@" + username;
+    } else {
+      document.getElementById("username").textContent = "@guest";
     }
-  </script>
 
-  <script>
-    // Hamburger menu functionality
+    // Clipboard function
+    function copyToClipboard() {
+      const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot";
+      navigator.clipboard.writeText(message).catch(err => {
+        console.error('Failed to copy:', err);
+      });
+    }
+
+    // Hamburger menu
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('nav-menu');
-
     hamburger.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        hamburger.classList.toggle('active');
+      navMenu.classList.toggle('active');
+      hamburger.classList.toggle('active');
     });
 
-    // Add active class to the clicked navigation item
+    // Navigation active state
     const navLinks = document.querySelectorAll('.nav-list li a');
-
+    const currentPage = window.location.pathname.split('/').pop() || 'profile.html';
     navLinks.forEach(link => {
-      link.addEventListener('click', function (e) {
-        // Remove active class from all links
+      link.addEventListener('click', function(e) {
         navLinks.forEach(link => link.classList.remove('active'));
-        // Add active class to the clicked link
         this.classList.add('active');
       });
-    });
-
-    // Set active class based on current page
-    const currentPage = window.location.pathname.split('/').pop() || 'profile.html'; // Default to profile.html
-    navLinks.forEach(link => {
       if (link.getAttribute('href') === currentPage) {
         link.classList.add('active');
       }
     });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    body.setAttribute('data-theme', savedTheme);
+    themeToggle.innerHTML = `<i class="fas ${savedTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+    });
   </script>
-
-  <script>
-    // Theme Toggle Functionality
-const themeToggle = document.getElementById('theme-toggle');
-const body = document.body;
-
-// Check for saved theme in localStorage
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-  body.setAttribute('data-theme', savedTheme);
-  updateToggleIcon(savedTheme);
-} else {
-  body.setAttribute('data-theme', 'dark'); // Default to dark mode
-}
-
-themeToggle.addEventListener('click', () => {
-  const currentTheme = body.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  body.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  updateToggleIcon(newTheme);
-});
-
-function updateToggleIcon(theme) {
-  const icon = theme === 'dark' ? 'fa-moon' : 'fa-sun';
-  themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
-}
-  </script>
-  
 </body>
 </html>
