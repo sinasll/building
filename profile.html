@@ -69,28 +69,17 @@
   </main>
 
 <script>
-    // Telegram WebApp initialization
-    let tg = window.Telegram.WebApp;
+// Initialize the Telegram WebApp
+const tg = window.Telegram.WebApp;
 
-    // Function to show confirmation before closing the mini app
-    function confirmClose() {
-        tg.showConfirm("Are you sure you want to close the app?", function (confirmed) {
-            if (confirmed) {
-                tg.close(); // Close the mini app if the user confirms
-            }
-        });
-    }
+// Disable native scrolling (crucial to prevent minimize on scroll)
+tg.enableClosingConfirmation(); // Optional: Ask users to confirm before closing
+tg.isExpanded = true; // Keep the Mini App expanded
+tg.MainButton.show(); // Ensure the main button is visible (if needed)
 
-    // Wait for the DOM to load
-    document.addEventListener('DOMContentLoaded', function () {
-        // Attach the confirmation to a button click
-        let closeButton = document.getElementById('closeButton');
-        if (closeButton) {
-            closeButton.addEventListener('click', confirmClose);
-        }
-
-        // Debugging: Log the entire initDataUnsafe object
-        console.log("initDataUnsafe:", tg.initDataUnsafe);
+// Disable scrolling in the Mini App container
+tg.setHeaderColor(tg.headerColor); // Match header color to your app
+tg.disablePageScrolling(); // <-- THIS IS THE KEY LINE
 
         // Get the Telegram username
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
