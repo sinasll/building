@@ -68,32 +68,41 @@
     </div>
   </main>
 
-  <script>
-// Telegram WebApp initialization
-let tg = window.Telegram.WebApp;
+<script>
+    // Telegram WebApp initialization
+    let tg = window.Telegram.WebApp;
 
-// Function to show confirmation before closing the mini app
-function confirmClose() {
-    tg.showConfirm("Are you sure you want to close the app?", function(confirmed) {
-        if (confirmed) {
-            tg.close(); // Close the mini app if user confirms
+    // Function to show confirmation before closing the mini app
+    function confirmClose() {
+        tg.showConfirm("Are you sure you want to close the app?", function (confirmed) {
+            if (confirmed) {
+                tg.close(); // Close the mini app if the user confirms
+            }
+        });
+    }
+
+    // Wait for the DOM to load
+    document.addEventListener('DOMContentLoaded', function () {
+        // Attach the confirmation to a button click
+        let closeButton = document.getElementById('closeButton');
+        if (closeButton) {
+            closeButton.addEventListener('click', confirmClose);
+        }
+
+        // Debugging: Log the entire initDataUnsafe object
+        console.log("initDataUnsafe:", tg.initDataUnsafe);
+
+        // Get the Telegram username
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            let username = tg.initDataUnsafe.user.username || "Unknown";
+            console.log("Username found:", username); // Debugging: Log the username
+            document.getElementById("username").textContent = "@" + username;
+        } else {
+            console.log("Username not found or initDataUnsafe is unavailable."); // Debugging
+            document.getElementById("username").textContent = "@guest";
         }
     });
-}
-
-// Example: Attach the confirmation to a button click
-document.getElementById('closeButton').addEventListener('click', function() {
-    confirmClose();
-});
-    
-    // Get the Telegram username
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        let username = tg.initDataUnsafe.user.username || "Unknown";
-        document.getElementById("username").textContent = "@" + username;
-    } else {
-        document.getElementById("username").textContent = "@guest";
-    }
-  </script>
+</script>
 
   <script>
     function copyToClipboard() {
