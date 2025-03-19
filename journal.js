@@ -214,9 +214,11 @@ function deleteTrade(index) {
 function printTradeAsPDF(trade) {
   const { jsPDF } = window.jspdf; // Initialize jsPDF
 
+  // Create a new PDF document
   const doc = new jsPDF();
 
   // Add the trade details to the PDF
+  doc.setFontSize(12);
   doc.text(`Trade Details:`, 10, 10);
   doc.text(`Date: ${trade.date}`, 10, 20);
   doc.text(`Time: ${trade.time}`, 10, 30);
@@ -229,8 +231,11 @@ function printTradeAsPDF(trade) {
   doc.text(`Pips: ${trade.pips}`, 10, 100);
   doc.text(`Outcome: ${trade.outcome}`, 10, 110);
 
-  // Download the PDF
-  doc.save(`trade-${trade.date}-${trade.time}.pdf`);
+  // Generate the PDF as a Blob
+  const pdfBlob = doc.output('blob');
+
+  // Use FileSaver.js to save the PDF
+  saveAs(pdfBlob, `trade-${trade.date}-${trade.time}.pdf`);
 }
 
 // Function to share trade details using the Web Share API
