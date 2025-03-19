@@ -52,7 +52,7 @@ function loadTrades() {
   });
 }
 
-// Function to add a trade as a minimized card with View, Delete, and Print buttons
+// Function to add a trade as a minimized card with View, Delete, Print, and Share buttons
 function addTradeToCards(trade, index) {
   const tradesList = document.getElementById('tradesList');
   const tradeCard = document.createElement('div');
@@ -75,6 +75,7 @@ function addTradeToCards(trade, index) {
     <button class="view-btn">View</button>
     <button class="delete-btn" data-index="${index}">Delete</button>
     <button class="print-btn" data-index="${index}">Print</button>
+    <button class="share-btn" data-index="${index}">Share</button>
   `;
 
   tradesList.appendChild(tradeCard);
@@ -93,6 +94,11 @@ function addTradeToCards(trade, index) {
   // Add event listener for the Print button
   tradeCard.querySelector('.print-btn').addEventListener('click', function () {
     printTradeAsPDF(trade);
+  });
+
+  // Add event listener for the Share button
+  tradeCard.querySelector('.share-btn').addEventListener('click', function () {
+    shareTrade(trade);
   });
 }
 
@@ -225,6 +231,37 @@ function printTradeAsPDF(trade) {
 
   // Download the PDF
   doc.save(`trade-${trade.date}-${trade.time}.pdf`);
+}
+
+// Function to share trade details using the Web Share API
+function shareTrade(trade) {
+  const tradeDetails = `
+    Trade Details:
+    Date: ${trade.date}
+    Time: ${trade.time}
+    Session: ${trade.session}
+    Pair: ${trade.pair}
+    Setup: ${trade.setup}
+    Playbook Entry: ${trade.entry}
+    Timeframe: ${trade.timeframe}
+    Buy/Sell: ${trade.buySell}
+    Pips: ${trade.pips}
+    Outcome: ${trade.outcome}
+  `;
+
+  // Check if the Web Share API is supported
+  if (navigator.share) {
+    navigator.share({
+      title: `Trade Details - ${trade.date} ${trade.time}`,
+      text: tradeDetails,
+    })
+      .then(() => console.log('Trade shared successfully'))
+      .catch((error) => console.error('Error sharing trade:', error));
+  } else {
+    // Fallback for browsers that don't support the Web Share API
+    alert('Web Share API not supported in this browser. Please copy the details manually.');
+    console.log(tradeDetails);
+  }
 }
 
 // Filter trades by date
