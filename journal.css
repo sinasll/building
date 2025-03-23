@@ -343,8 +343,8 @@ form button {
 .modal {
   position: fixed;
   z-index: 1001;
-  left: 5%;
-  top: 20%;
+  left: 10px;
+  top: 10px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -368,11 +368,10 @@ form button {
   border: 2px solid var(--border-color);
   padding: 20px;
   font-family: 'Press Start 2P', sans-serif;
-  width: 90%;
-  max-width: 350px;
-  max-height: 70vh; /* Limits the modal height */
-  overflow-y: auto; /* Enables vertical scrolling when content overflows */
-  border-radius: 10px;
+  width: 95%;
+  max-width: 420px;
+  max-height: 90vh; /* Taller modal */
+  overflow-y: auto;
   position: relative;
   transform: scale(0.8);
   transition: transform 0.3s ease;
@@ -384,7 +383,7 @@ form button {
 
 /* Modal Header & Close Button */
 .modal-content h2 {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   font-size: 16px;
 }
 .modal-content .close {
@@ -409,12 +408,13 @@ form button {
 .modal-content input[type="text"] {
   width: 100%;
   padding: 8px;
-  font-size: 10px;
+  font-size: 12px;
   font-family: 'Press Start 2P', sans-serif;
   border: 1px solid var(--border-color);
   background-color: var(--background-color);
   color: var(--text-color);
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 /* Actions Area Header */
@@ -466,34 +466,40 @@ form button {
 /* Apply placeholder color to all inputs inside modal */
 .modal-content input::placeholder {
   color: var(--text-color);
-  opacity: 0.5; /* Ensure full opacity */
+  opacity: 0.5;
 }
 
+/* Scrollbar Styling inside Modal */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
 
 /* Responsive Adjustments for Mobile */
 @media (max-width: 768px) {
   .modal-content {
-    width: 90%;
-    max-width: 450px;
-  }
-  .modal-content h2 {
-    font-size: 16px;
-  }
-  .modal-content label,
-  .modal-content input,
-  .modal-content select,
-  #modalActions h3 {
-    font-size: 12px;
+    width: 95%;
+    max-width: 500px;
+    max-height: 95vh;
   }
 }
 
 @media (max-width: 480px) {
   .modal-content {
     width: 95%;
-    max-width: 280px;
+    max-width: 360px;
+    max-height: 95vh;
   }
   .modal-content h2 {
-    font-size: 12px;
+    font-size: 14px;
   }
   .modal-content label,
   .modal-content input,
@@ -505,10 +511,11 @@ form button {
   #modalRenameBtn,
   #modalRemoveBtn,
   #modalAddBtn {
-    font-size: 10px;
+    font-size: 12px;
     padding: 8px 12px;
   }
 }
+
 
 /* Footer Styles */
 footer {
