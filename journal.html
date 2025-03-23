@@ -135,159 +135,206 @@
     </section>
   </main>
 
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeSettings">&times;</span>
-      <h2>Settings</h2>
-      <label for="settingsType">Select</label>
-      <select id="settingsType">
-        <option value="setup">Setup</option>
-        <option value="entry">Entry</option>
-      </select>
-      <div id="modalActions">
-        <select id="modalOptions" size="5" style="width:100%;"></select>
-        <br /><br />
-        <input type="text" id="modalNewName" placeholder="Rename" style="width:100%;" />
-        <br /><br />
-        <button id="modalRenameBtn">Rename Selected</button>
-        <button id="modalRemoveBtn">Remove Selected</button>
-        <br /><br />
-        <input type="text" id="modalAddName" placeholder="Add" style="width:100%;" />
-        <br /><br />
-        <button id="modalAddBtn">Add</button>
-      </div>
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeSettings">&times;</span>
+    <h2>Settings</h2>
+    <label for="settingsType">Select</label>
+    <select id="settingsType">
+      <option value="setup">Setup</option>
+      <option value="entry">Entry</option>
+      <option value="timeframe">Timeframe</option>
+      <option value="pair">Pair</option>
+    </select>
+    <div id="modalActions">
+      <select id="modalOptions" size="5" style="width:100%;"></select>
+      <br /><br />
+      <input type="text" id="modalNewName" placeholder="Rename" style="width:100%;" />
+      <br /><br />
+      <button id="modalRenameBtn">Rename Selected</button>
+      <button id="modalRemoveBtn">Remove Selected</button>
+      <br /><br />
+      <input type="text" id="modalAddName" placeholder="Add" style="width:100%;" />
+      <br /><br />
+      <button id="modalAddBtn">Add</button>
     </div>
   </div>
+</div>
 
   <script>
-    // Initialize options from localStorage or defaults
-    const initializeOptions = () => {
-      const savedSetups = JSON.parse(localStorage.getItem('setups')) || ['setup 1', 'setup 2', 'setup 3'];
-      const savedEntries = JSON.parse(localStorage.getItem('entries')) || ['entry 1', 'entry 2', 'entry 3', 'entry 4', 'entry 5'];
-      localStorage.setItem('setups', JSON.stringify(savedSetups));
-      localStorage.setItem('entries', JSON.stringify(savedEntries));
-      populateSelect('setup', savedSetups);
-      populateSelect('entry', savedEntries);
-    };
+  // Initialize options from localStorage or defaults
+const initializeOptions = () => {
+  const savedSetups = JSON.parse(localStorage.getItem('setups')) || ['setup 1', 'setup 2', 'setup 3'];
+  const savedEntries = JSON.parse(localStorage.getItem('entries')) || ['entry 1', 'entry 2', 'entry 3', 'entry 4', 'entry 5'];
+  const savedTimeframes = JSON.parse(localStorage.getItem('timeframes')) || ['5min', '15min', '30min', '1hr', '4hr'];
+  const savedPairs = JSON.parse(localStorage.getItem('pairs')) || ['EURUSD', 'GBPUSD', 'USDJPY', 'GBPJPY', 'XAUUSD', 'XAGUSD', 'US30', 'NAS100', 'SPX500'];
 
-    // Populate a select element (in form) with options
-    const populateSelect = (id, options) => {
-      const select = document.getElementById(id);
-      select.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join('');
-    };
+  localStorage.setItem('setups', JSON.stringify(savedSetups));
+  localStorage.setItem('entries', JSON.stringify(savedEntries));
+  localStorage.setItem('timeframes', JSON.stringify(savedTimeframes));
+  localStorage.setItem('pairs', JSON.stringify(savedPairs));
 
-    // Save options to localStorage for given type (setup or entry)
-    const saveOptions = (type, options) => {
-      localStorage.setItem(type === 'setup' ? 'setups' : 'entries', JSON.stringify(options));
-    };
+  populateSelect('setup', savedSetups);
+  populateSelect('entry', savedEntries);
+  populateSelect('timeframe', savedTimeframes);
+  populateSelect('pair', savedPairs);
+};
 
-    // Get options array for a given type
-    const getOptions = (type) => {
-      return JSON.parse(localStorage.getItem(type === 'setup' ? 'setups' : 'entries')) || [];
-    };
+// Populate a select element with options
+const populateSelect = (id, options) => {
+  const select = document.getElementById(id);
+  if (select) {
+    select.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join('');
+  }
+};
 
-    // Update both form select and modal select for a given type
-    const updateOptions = (type) => {
-      const options = getOptions(type);
-      if (type === 'setup' || type === 'entry') {
-        populateSelect(type, options);
-      }
-      if (document.getElementById('modalOptions')) {
-        populateModalOptions(options);
-      }
-    };
+// Save options to localStorage
+const saveOptions = (type, options) => {
+  let key;
+  switch (type) {
+    case 'setup':
+      key = 'setups';
+      break;
+    case 'entry':
+      key = 'entries';
+      break;
+    case 'timeframe':
+      key = 'timeframes';
+      break;
+    case 'pair':
+      key = 'pairs';
+      break;
+    default:
+      return;
+  }
+  localStorage.setItem(key, JSON.stringify(options));
+};
 
-    // Populate the modal's options list
-    const populateModalOptions = (options) => {
-      const modalSelect = document.getElementById('modalOptions');
-      modalSelect.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join('');
-    };
+// Get options from localStorage
+const getOptions = (type) => {
+  let key;
+  switch (type) {
+    case 'setup':
+      key = 'setups';
+      break;
+    case 'entry':
+      key = 'entries';
+      break;
+    case 'timeframe':
+      key = 'timeframes';
+      break;
+    case 'pair':
+      key = 'pairs';
+      break;
+    default:
+      return [];
+  }
+  return JSON.parse(localStorage.getItem(key)) || [];
+};
 
-    // Modal related variables
-    const settingsModal = document.getElementById('settingsModal');
-    const openSettingsBtn = document.getElementById('openSettings');
-    const closeSettingsBtn = document.getElementById('closeSettings');
-    const settingsTypeSelect = document.getElementById('settingsType');
-    const modalOptions = document.getElementById('modalOptions');
+// Update both form select and modal select
+const updateOptions = (type) => {
+  const options = getOptions(type);
+  if (type === 'setup' || type === 'entry' || type === 'timeframe' || type === 'pair') {
+    populateSelect(type, options);
+  }
+  if (document.getElementById('modalOptions')) {
+    populateModalOptions(options);
+  }
+};
 
-    // Open modal when settings button is clicked
-    openSettingsBtn.addEventListener('click', () => {
-      settingsModal.style.display = 'block';
-      loadModalOptions();
-    });
+// Populate the modal's options list
+const populateModalOptions = (options) => {
+  const modalSelect = document.getElementById('modalOptions');
+  if (modalSelect) {
+    modalSelect.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join('');
+  }
+};
 
-    // Close modal when 'x' is clicked
-    closeSettingsBtn.addEventListener('click', () => {
-      settingsModal.style.display = 'none';
-    });
+// Modal related variables
+const settingsModal = document.getElementById('settingsModal');
+const openSettingsBtn = document.getElementById('openSettings');
+const closeSettingsBtn = document.getElementById('closeSettings');
+const settingsTypeSelect = document.getElementById('settingsType');
+const modalOptions = document.getElementById('modalOptions');
 
-    // Close modal when clicking outside the modal content
-    window.addEventListener('click', (event) => {
-      if (event.target === settingsModal) {
-        settingsModal.style.display = 'none';
-      }
-    });
+// Open modal when settings button is clicked
+openSettingsBtn.addEventListener('click', () => {
+  settingsModal.style.display = 'block';
+  loadModalOptions();
+});
 
-    // Load options in the modal based on selected type
-    const loadModalOptions = () => {
-      const type = settingsTypeSelect.value;
-      const options = getOptions(type);
-      populateModalOptions(options);
-    };
+// Close modal when 'x' is clicked
+closeSettingsBtn.addEventListener('click', () => {
+  settingsModal.style.display = 'none';
+});
 
-    // Update modal when type selection changes
-    settingsTypeSelect.addEventListener('change', loadModalOptions);
+// Close modal when clicking outside the modal content
+window.addEventListener('click', (event) => {
+  if (event.target === settingsModal) {
+    settingsModal.style.display = 'none';
+  }
+});
 
-    // Modal Add Option
-    document.getElementById('modalAddBtn').addEventListener('click', () => {
-      const type = settingsTypeSelect.value;
-      const addInput = document.getElementById('modalAddName');
-      const newOption = addInput.value.trim();
-      if (newOption) {
-        const options = getOptions(type);
-        options.push(newOption);
-        saveOptions(type, options);
-        updateOptions(type);
-        addInput.value = '';
-        loadModalOptions();
-      }
-    });
+// Load options in the modal based on selected type
+const loadModalOptions = () => {
+  const type = settingsTypeSelect.value;
+  const options = getOptions(type);
+  populateModalOptions(options);
+};
 
-    // Modal Rename Option
-    document.getElementById('modalRenameBtn').addEventListener('click', () => {
-      const type = settingsTypeSelect.value;
-      const renameInput = document.getElementById('modalNewName');
-      const newName = renameInput.value.trim();
-      const selectedIndex = modalOptions.selectedIndex;
-      if (newName && selectedIndex !== -1) {
-        const options = getOptions(type);
-        options[selectedIndex] = newName;
-        saveOptions(type, options);
-        updateOptions(type);
-        renameInput.value = '';
-        loadModalOptions();
-      }
-    });
+// Update modal when type selection changes
+settingsTypeSelect.addEventListener('change', loadModalOptions);
 
-    // Modal Remove Option
-    document.getElementById('modalRemoveBtn').addEventListener('click', () => {
-      const type = settingsTypeSelect.value;
-      const selectedIndex = modalOptions.selectedIndex;
-      if (selectedIndex !== -1) {
-        const options = getOptions(type);
-        options.splice(selectedIndex, 1);
-        saveOptions(type, options);
-        updateOptions(type);
-        loadModalOptions();
-      }
-    });
+// Modal Add Option
+document.getElementById('modalAddBtn').addEventListener('click', () => {
+  const type = settingsTypeSelect.value;
+  const addInput = document.getElementById('modalAddName');
+  const newOption = addInput.value.trim();
+  if (newOption) {
+    const options = getOptions(type);
+    options.push(newOption);
+    saveOptions(type, options);
+    updateOptions(type);
+    addInput.value = '';
+    loadModalOptions();
+  }
+});
 
-    // Initialize on page load
-    window.onload = () => {
-      initializeOptions();
-      // loadTrades(); // Existing function to load trade history if applicable
-    };
+// Modal Rename Option
+document.getElementById('modalRenameBtn').addEventListener('click', () => {
+  const type = settingsTypeSelect.value;
+  const renameInput = document.getElementById('modalNewName');
+  const newName = renameInput.value.trim();
+  const selectedIndex = modalOptions.selectedIndex;
+  if (newName && selectedIndex !== -1) {
+    const options = getOptions(type);
+    options[selectedIndex] = newName;
+    saveOptions(type, options);
+    updateOptions(type);
+    renameInput.value = '';
+    loadModalOptions();
+  }
+});
+
+// Modal Remove Option
+document.getElementById('modalRemoveBtn').addEventListener('click', () => {
+  const type = settingsTypeSelect.value;
+  const selectedIndex = modalOptions.selectedIndex;
+  if (selectedIndex !== -1) {
+    const options = getOptions(type);
+    options.splice(selectedIndex, 1);
+    saveOptions(type, options);
+    updateOptions(type);
+    loadModalOptions();
+  }
+});
+
+// Initialize on page load
+window.onload = () => {
+  initializeOptions();
+};
 
     /* Hamburger menu and theme toggle scripts remain unchanged */
     const hamburger = document.getElementById('hamburger');
