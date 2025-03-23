@@ -2,22 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PipCore</title>
   <link href="journal.css" rel="stylesheet" type="text/css" />
   <script src="journal.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  rel="stylesheet"
-/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-
 </head>
-
 <body>
   <header>
     <div class="header-container">
@@ -43,11 +37,11 @@
     </div>
   </header>
 
-  
   <main>
     <section class="journal">
       <h1 class="journalh1">TRACK TRADES</h1>
       <form id="tradeForm">
+        <!-- Form fields for trade details -->
         <label for="date">Date</label>
         <input type="date" id="date" required class="date-time">
 
@@ -77,20 +71,24 @@
         </select>
 
         <label for="setup">Setup</label>
-        <select id="setup" required>
-          <option value="setup1">setup 1</option>
-          <option value="setup2">setup 2</option>
-          <option value="setup3">setup 3</option>
-        </select>
+        <select id="setup" required></select>
+
+        <input type="text" id="newSetup" placeholder="Rename setup">
+        <button type="button" id="renameSetupBtn">Rename Setup</button>
+
+        <input type="text" id="addSetup" placeholder="Add new setup">
+        <button type="button" id="addSetupBtn">Add Setup</button>
+        <button type="button" id="removeSetupBtn">Remove Setup</button>
 
         <label for="entry">Entry</label>
-        <select id="entry" required>
-          <option value="entry1">entry 1</option>
-          <option value="entry2">entry 2</option>
-          <option value="entry3">entry 3</option>
-          <option value="entry4">entry 4</option>
-          <option value="entry5">entry 5</option>
-        </select>
+        <select id="entry" required></select>
+
+        <input type="text" id="newEntry" placeholder="Rename entry">
+        <button type="button" id="renameEntryBtn">Rename Entry</button>
+
+        <input type="text" id="addEntry" placeholder="Add new entry">
+        <button type="button" id="addEntryBtn">Add Entry</button>
+        <button type="button" id="removeEntryBtn">Remove Entry</button>
 
         <label for="timeframe">Timeframe</label>
         <select id="timeframe" required>
@@ -122,7 +120,6 @@
 
       <div id="tradeEntries">
         <h2 class="history">HISTORY</h2>
-
         <div id="filterContainer">
           <label for="filter"></label>
           <select id="filter">
@@ -133,7 +130,6 @@
             <option value="lastMonth">Last Month</option>
             <option value="custom">Custom Date</option>
           </select>
-        
           <div id="customDateContainer" style="display: none;">
             <label for="customDate">Select Date:</label>
             <input type="date" id="customDate" />
@@ -144,38 +140,120 @@
         <div id="tradesList">
           <!-- Trade cards will appear here -->
         </div>
-      </div>  
-      
-      <script>
-        // Hamburger menu functionality
-        const hamburger = document.getElementById('hamburger');
-        const navMenu = document.getElementById('nav-menu');
-    
-        hamburger.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            hamburger.classList.toggle('active');
-        });
-    
-        // Add active class to the clicked navigation item
-        const navLinks = document.querySelectorAll('.nav-list li a');
-    
-        navLinks.forEach(link => {
-          link.addEventListener('click', function (e) {
-            // Remove active class from all links
-            navLinks.forEach(link => link.classList.remove('active'));
-            // Add active class to the clicked link
-            this.classList.add('active');
-          });
-        });
-    
-        // Set active class based on current page
-        const currentPage = window.location.pathname.split('/').pop() || 'profile.html'; // Default to profile.html
-        navLinks.forEach(link => {
-          if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active');
-          }
-        });
-      </script>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  // Function to load setups and entries from localStorage
+  const initializeOptions = () => {
+    const savedSetups = JSON.parse(localStorage.getItem('setups')) || ['setup 1', 'setup 2', 'setup 3'];
+    const savedEntries = JSON.parse(localStorage.getItem('entries')) || ['entry 1', 'entry 2', 'entry 3', 'entry 4', 'entry 5'];
+    localStorage.setItem('setups', JSON.stringify(savedSetups));
+    localStorage.setItem('entries', JSON.stringify(savedEntries));
+    populateOptions('setup', savedSetups);
+    populateOptions('entry', savedEntries);
+  };
+  
+  // Populate dropdown options
+  const populateOptions = (id, options) => {
+    const select = document.getElementById(id);
+    select.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join('');
+  };
+  
+  // Save options to localStorage
+  const saveOptions = (id) => {
+    const select = document.getElementById(id);
+    const options = Array.from(select.options).map(option => option.text);
+    localStorage.setItem(id === 'setup' ? 'setups' : 'entries', JSON.stringify(options));
+  };
+  
+  // Add new option
+  const addOption = (id) => {
+    const input = document.getElementById(`add${id.charAt(0).toUpperCase() + id.slice(1)}`);
+    const newItem = input.value.trim();
+    if (newItem) {
+      const select = document.getElementById(id);
+      const option = document.createElement('option');
+      option.value = newItem; // Preserve original text
+      option.textContent = newItem; // Preserve original text
+      select.appendChild(option);
+      saveOptions(id);
+      input.value = '';
+    }
+  };
+  
+  // Rename selected option
+  const renameOption = (id) => {
+    const input = document.getElementById(`new${id.charAt(0).toUpperCase() + id.slice(1)}`);
+    const newName = input.value.trim();
+    if (newName) {
+      const select = document.getElementById(id);
+      const selectedOption = select.options[select.selectedIndex];
+      if (selectedOption) {
+        selectedOption.textContent = newName; // Preserve original text
+        selectedOption.value = newName; // Preserve original text
+        saveOptions(id);
+        input.value = '';
+      }
+    }
+  };
+  
+  // Remove selected option
+  const removeOption = (id) => {
+    const select = document.getElementById(id);
+    const selectedIndex = select.selectedIndex;
+    if (selectedIndex !== -1) {
+      select.remove(selectedIndex);
+      saveOptions(id);
+    }
+  };
+  
+  // Event listeners for setups and entries
+  document.getElementById('addSetupBtn').addEventListener('click', () => addOption('setup'));
+  document.getElementById('addEntryBtn').addEventListener('click', () => addOption('entry'));
+  document.getElementById('renameSetupBtn').addEventListener('click', () => renameOption('setup'));
+  document.getElementById('renameEntryBtn').addEventListener('click', () => renameOption('entry'));
+  document.getElementById('removeSetupBtn').addEventListener('click', () => removeOption('setup'));
+  document.getElementById('removeEntryBtn').addEventListener('click', () => removeOption('entry'));
+  
+  // Initialize on page load
+  window.onload = () => {
+    initializeOptions();
+    loadTrades();
+  };
+</script>
+
+<script>
+  // Hamburger menu functionality
+  const hamburger = document.getElementById('hamburger');
+  const navMenu = document.getElementById('nav-menu');
+
+  hamburger.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      hamburger.classList.toggle('active');
+  });
+
+  // Add active class to the clicked navigation item
+  const navLinks = document.querySelectorAll('.nav-list li a');
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+      // Remove active class from all links
+      navLinks.forEach(link => link.classList.remove('active'));
+      // Add active class to the clicked link
+      this.classList.add('active');
+    });
+  });
+
+  // Set active class based on current page
+  const currentPage = window.location.pathname.split('/').pop() || 'profile.html'; // Default to profile.html
+  navLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPage) {
+      link.classList.add('active');
+    }
+  });
+</script>
 
 <script>
   // Theme Toggle Functionality

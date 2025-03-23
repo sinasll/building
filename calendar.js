@@ -49,7 +49,7 @@ function generateStats() {
 
 // Grouping by stats section (Win Rate, Total Trades, etc.)
 const statGroups = [
-  { title: 'Month Stats', stats: stats },
+  { title: 'MONTH STATS', stats: stats },
   { title: 'Setups', stats: getSetupsStats(currentMonthTrades) },
   { title: 'Entries', stats: getEntriesStats(currentMonthTrades) },
   { title: 'Timeframes', stats: getTimeframesStats(currentMonthTrades) }, // Moved above Sessions
