@@ -138,12 +138,14 @@ function getSessionsStats(trades) {
   });
 }
 
-// Function to calculate timeframe stats
+// Function to calculate timeframe stats for the calendar
 function getTimeframesStats(trades) {
-  const timeframes = ['5min', '15min', '30min', '1hr', '4hr'];
+  // Fetch timeframes from localStorage
+  const timeframes = JSON.parse(localStorage.getItem('timeframes')) || ['5min', '15min', '30min', '1hr', '4hr'];
+
   return timeframes.map(timeframe => {
     const tradesForTimeframe = trades.filter(trade => trade.timeframe === timeframe);
-    const timeframeWinRate = tradesForTimeframe.length > 0 ? 
+    const timeframeWinRate = tradesForTimeframe.length > 0 ?
       ((tradesForTimeframe.filter(trade => trade.outcome.toLowerCase() === 'win').length / tradesForTimeframe.length) * 100).toFixed(2)
       : 0;
 
