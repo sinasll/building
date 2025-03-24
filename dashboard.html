@@ -37,6 +37,36 @@
   </header>
 
   <main>
+    
+      <style>
+        button {
+            padding: 20px;
+            font-size: 18px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="vibrate()">Tap to Vibrate</button>
+
+    <script>
+        // Initialize Telegram Web App
+        const tg = window.Telegram.WebApp;
+
+        function vibrate() {
+            // Trigger haptic feedback
+            tg.HapticFeedback.impactOccurred('light');
+
+            // Other options:
+            // tg.HapticFeedback.impactOccurred('medium');
+            // tg.HapticFeedback.impactOccurred('heavy');
+            // tg.HapticFeedback.notificationOccurred('success');
+        }
+    </script>
     <div>
       <h1 class="stats">OVERALL STATS</h1>
     </div>
