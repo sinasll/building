@@ -44,24 +44,28 @@ function addTradeToCards(trade, index) {
   const tradesList = document.getElementById('tradesList');
   const tradeCard = document.createElement('div');
   tradeCard.classList.add('trade-card', 'minimized');
+  tradeCard.dataset.index = index; // Store index for reference
 
   tradeCard.innerHTML = `
     <h3>Trade ${index + 1}</h3>
     <div class="card-details" style="display: none;">
-      <p><strong>Date:</strong> ${trade.date}</p>
-      <p><strong>Time:</strong> ${trade.time}</p>
-      <p><strong>Session:</strong> ${trade.session}</p>
-      <p><strong>Pair:</strong> ${trade.pair}</p>
-      <p><strong>Setup:</strong> ${trade.setup}</p>
-      <p><strong>Playbook Entry:</strong> ${trade.entry}</p>
-      <p><strong>Timeframe:</strong> ${trade.timeframe}</p>
-      <p><strong>Buy/Sell:</strong> ${trade.buySell}</p>
-      <p><strong>Pips:</strong> ${trade.pips}</p>
-      <p><strong>Outcome:</strong> ${trade.outcome}</p>
+      <p><strong>Date:</strong> <span class="editable" data-field="date">${trade.date}</span></p>
+      <p><strong>Time:</strong> <span class="editable" data-field="time">${trade.time}</span></p>
+      <p><strong>Session:</strong> <span class="editable" data-field="session">${trade.session}</span></p>
+      <p><strong>Pair:</strong> <span class="editable" data-field="pair">${trade.pair}</span></p>
+      <p><strong>Setup:</strong> <span class="editable" data-field="setup">${trade.setup}</span></p>
+      <p><strong>Playbook Entry:</strong> <span class="editable" data-field="entry">${trade.entry}</span></p>
+      <p><strong>Timeframe:</strong> <span class="editable" data-field="timeframe">${trade.timeframe}</span></p>
+      <p><strong>Buy/Sell:</strong> <span class="editable" data-field="buySell">${trade.buySell}</span></p>
+      <p><strong>Pips:</strong> <span class="editable" data-field="pips">${trade.pips}</span></p>
+      <p><strong>Outcome:</strong> <span class="editable" data-field="outcome">${trade.outcome}</span></p>
     </div>
-    <button class="view-btn">View</button>
-    <button class="delete-btn" data-index="${index}">Delete</button>
-    <button class="share-btn" data-index="${index}">Share</button>
+    <div class="card-buttons">
+      <button class="view-btn">View</button>
+      <button class="edit-btn">Edit</button>
+      <button class="delete-btn" data-index="${index}">Delete</button>
+      <button class="share-btn" data-index="${index}">Share</button>
+    </div>
   `;
 
   tradesList.appendChild(tradeCard);
@@ -71,6 +75,10 @@ function addTradeToCards(trade, index) {
     toggleCardDetails(tradeCard, this);
   });
 
+  tradeCard.querySelector('.edit-btn').addEventListener('click', function() {
+    toggleEditMode(tradeCard, this);
+  });
+
   tradeCard.querySelector('.delete-btn').addEventListener('click', function() {
     deleteTrade(index);
   });
@@ -78,6 +86,62 @@ function addTradeToCards(trade, index) {
   tradeCard.querySelector('.share-btn').addEventListener('click', function() {
     showShareOptions(trade);
   });
+}
+
+// Toggle edit mode for a trade card
+function toggleEditMode(card, button) {
+  const isEditing = card.classList.contains('editing');
+  
+  if (isEditing) {
+    // Save changes
+    const index = card.dataset.index;
+    const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
+    const updatedTrade = tradeEntries[index];
+    
+    // Get all editable fields
+    const editableFields = card.querySelectorAll('.editable');
+    editableFields.forEach(field => {
+      const fieldName = field.dataset.field;
+      updatedTrade[fieldName] = field.textContent;
+    });
+    
+    // Update localStorage
+    tradeEntries[index] = updatedTrade;
+    localStorage.setItem('tradeEntries', JSON.stringify(tradeEntries));
+    
+    // Exit edit mode
+    card.classList.remove('editing');
+    button.textContent = 'Edit';
+    
+    // Make fields non-editable
+    editableFields.forEach(field => {
+      field.contentEditable = 'false';
+      field.style.border = 'none';
+      field.style.backgroundColor = 'transparent';
+    });
+  } else {
+    // Enter edit mode
+    card.classList.add('editing');
+    button.textContent = 'Save';
+    
+    // Make fields editable
+    const editableFields = card.querySelectorAll('.editable');
+    editableFields.forEach(field => {
+      field.contentEditable = 'true';
+      field.style.border = '1px dashed #E6B33C';
+      field.style.backgroundColor = 'rgba(230, 179, 60, 0.1)';
+      field.style.padding = '2px';
+      field.style.borderRadius = '3px';
+    });
+    
+    // Ensure details are visible when editing
+    const details = card.querySelector('.card-details');
+    if (details.style.display === 'none') {
+      details.style.display = 'block';
+      card.classList.remove('minimized');
+      card.querySelector('.view-btn').textContent = 'Hide';
+    }
+  }
 }
 
 // Toggle card details visibility
