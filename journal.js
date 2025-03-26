@@ -88,59 +88,100 @@ function addTradeToCards(trade, index) {
   });
 }
 
-// Toggle edit mode for a trade card
+// Enhanced Toggle Edit Mode with Mobile Support
 function toggleEditMode(card, button) {
   const isEditing = card.classList.contains('editing');
   
   if (isEditing) {
     // Save changes
-    const index = card.dataset.index;
-    const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
-    const updatedTrade = tradeEntries[index];
-    
-    // Get all editable fields
-    const editableFields = card.querySelectorAll('.editable');
-    editableFields.forEach(field => {
-      const fieldName = field.dataset.field;
-      updatedTrade[fieldName] = field.textContent;
-    });
-    
-    // Update localStorage
-    tradeEntries[index] = updatedTrade;
-    localStorage.setItem('tradeEntries', JSON.stringify(tradeEntries));
-    
-    // Exit edit mode
-    card.classList.remove('editing');
-    button.textContent = 'Edit';
-    
-    // Make fields non-editable
-    editableFields.forEach(field => {
-      field.contentEditable = 'false';
-      field.style.border = 'none';
-      field.style.backgroundColor = 'transparent';
-    });
+    saveEdits(card, button);
   } else {
     // Enter edit mode
-    card.classList.add('editing');
-    button.textContent = 'Save';
+    enterEditMode(card, button);
+  }
+}
+
+function enterEditMode(card, button) {
+  card.classList.add('editing');
+  button.textContent = 'Save';
+  
+  // Make fields editable
+  const editableFields = card.querySelectorAll('.editable');
+  editableFields.forEach(field => {
+    field.contentEditable = 'true';
+    field.style.border = '1px dashed #E6B33C';
+    field.style.backgroundColor = 'rgba(230, 179, 60, 0.1)';
+    field.style.padding = '2px';
+    field.style.borderRadius = '3px';
     
-    // Make fields editable
-    const editableFields = card.querySelectorAll('.editable');
-    editableFields.forEach(field => {
-      field.contentEditable = 'true';
-      field.style.border = '1px dashed #E6B33C';
-      field.style.backgroundColor = 'rgba(230, 179, 60, 0.1)';
-      field.style.padding = '2px';
-      field.style.borderRadius = '3px';
+    // Add keyboard event listener for Enter key
+    field.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault(); // Prevent new line
+        saveEdits(card, button);
+      }
     });
+  });
+  
+  // Ensure details are visible when editing
+  const details = card.querySelector('.card-details');
+  if (details.style.display === 'none') {
+    details.style.display = 'block';
+    card.classList.remove('minimized');
+    card.querySelector('.view-btn').textContent = 'Hide';
+  }
+  
+  // Scroll to the card for better mobile experience
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+  
+  // Add touch event for mobile devices to dismiss keyboard
+  if ('ontouchstart' in window) {
+    const dismissKeyboard = function(e) {
+      if (!card.contains(e.target)) {
+        saveEdits(card, button);
+        document.removeEventListener('touchstart', dismissKeyboard);
+      }
+    };
     
-    // Ensure details are visible when editing
-    const details = card.querySelector('.card-details');
-    if (details.style.display === 'none') {
-      details.style.display = 'block';
-      card.classList.remove('minimized');
-      card.querySelector('.view-btn').textContent = 'Hide';
-    }
+    // Add touch listener after a small delay to prevent immediate dismissal
+    setTimeout(() => {
+      document.addEventListener('touchstart', dismissKeyboard, { once: true });
+    }, 300);
+  }
+}
+
+function saveEdits(card, button) {
+  const index = card.dataset.index;
+  const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
+  const updatedTrade = tradeEntries[index];
+  
+  // Get all editable fields
+  const editableFields = card.querySelectorAll('.editable');
+  editableFields.forEach(field => {
+    const fieldName = field.dataset.field;
+    updatedTrade[fieldName] = field.textContent;
+  });
+  
+  // Update localStorage
+  tradeEntries[index] = updatedTrade;
+  localStorage.setItem('tradeEntries', JSON.stringify(tradeEntries));
+  
+  // Exit edit mode
+  card.classList.remove('editing');
+  button.textContent = 'Edit';
+  
+  // Make fields non-editable
+  editableFields.forEach(field => {
+    field.contentEditable = 'false';
+    field.style.border = 'none';
+    field.style.backgroundColor = 'transparent';
+  });
+  
+  // Blur any focused field to dismiss mobile keyboard
+  if (document.activeElement) {
+    document.activeElement.blur();
   }
 }
 
@@ -158,6 +199,11 @@ function toggleCardDetails(card, button) {
     card.classList.add('minimized');
     button.textContent = 'View';
   }
+  
+  // Scroll to the card for better mobile experience
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
 }
 
 // Delete trade with confirmation modal
