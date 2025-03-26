@@ -1,6 +1,18 @@
+// ======================
+// Haptic Feedback Utility
+// ======================
+function triggerHaptic() {
+  if (window.Telegram?.WebApp?.HapticFeedback) {
+    window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+  }
+}
+
+// ======================
 // Trade Form Submission
+// ======================
 document.getElementById('tradeForm').addEventListener('submit', function(e) {
   e.preventDefault();
+  triggerHaptic();
 
   // Get form values
   const date = document.getElementById('date').value;
@@ -31,7 +43,9 @@ document.getElementById('tradeForm').addEventListener('submit', function(e) {
   document.getElementById('tradeForm').reset();
 });
 
-// Load trades from storage
+// ======================
+// Trade Card Management
+// ======================
 function loadTrades() {
   const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
   tradeEntries.forEach((trade, index) => {
@@ -39,12 +53,11 @@ function loadTrades() {
   });
 }
 
-// Add trade card to UI
 function addTradeToCards(trade, index) {
   const tradesList = document.getElementById('tradesList');
   const tradeCard = document.createElement('div');
   tradeCard.classList.add('trade-card', 'minimized');
-  tradeCard.dataset.index = index; // Store index for reference
+  tradeCard.dataset.index = index;
 
   tradeCard.innerHTML = `
     <h3>Trade ${index + 1}</h3>
@@ -70,122 +83,31 @@ function addTradeToCards(trade, index) {
 
   tradesList.appendChild(tradeCard);
 
-  // Add event listeners
+  // Add event listeners with haptic feedback
   tradeCard.querySelector('.view-btn').addEventListener('click', function() {
+    triggerHaptic();
     toggleCardDetails(tradeCard, this);
   });
 
   tradeCard.querySelector('.edit-btn').addEventListener('click', function() {
+    triggerHaptic();
     toggleEditMode(tradeCard, this);
   });
 
   tradeCard.querySelector('.delete-btn').addEventListener('click', function() {
+    triggerHaptic();
     deleteTrade(index);
   });
 
   tradeCard.querySelector('.share-btn').addEventListener('click', function() {
+    triggerHaptic();
     showShareOptions(trade);
   });
 }
 
-// Enhanced Toggle Edit Mode with Mobile Support
-function toggleEditMode(card, button) {
-  const isEditing = card.classList.contains('editing');
-  
-  if (isEditing) {
-    // Save changes
-    saveEdits(card, button);
-  } else {
-    // Enter edit mode
-    enterEditMode(card, button);
-  }
-}
-
-function enterEditMode(card, button) {
-  card.classList.add('editing');
-  button.textContent = 'Save';
-  
-  // Make fields editable
-  const editableFields = card.querySelectorAll('.editable');
-  editableFields.forEach(field => {
-    field.contentEditable = 'true';
-    field.style.border = '1px dashed #E6B33C';
-    field.style.backgroundColor = 'rgba(230, 179, 60, 0.1)';
-    field.style.padding = '2px';
-    field.style.borderRadius = '3px';
-    
-    // Add keyboard event listener for Enter key
-    field.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault(); // Prevent new line
-        saveEdits(card, button);
-      }
-    });
-  });
-  
-  // Ensure details are visible when editing
-  const details = card.querySelector('.card-details');
-  if (details.style.display === 'none') {
-    details.style.display = 'block';
-    card.classList.remove('minimized');
-    card.querySelector('.view-btn').textContent = 'Hide';
-  }
-  
-  // Scroll to the card for better mobile experience
-  setTimeout(() => {
-    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 100);
-  
-  // Add touch event for mobile devices to dismiss keyboard
-  if ('ontouchstart' in window) {
-    const dismissKeyboard = function(e) {
-      if (!card.contains(e.target)) {
-        saveEdits(card, button);
-        document.removeEventListener('touchstart', dismissKeyboard);
-      }
-    };
-    
-    // Add touch listener after a small delay to prevent immediate dismissal
-    setTimeout(() => {
-      document.addEventListener('touchstart', dismissKeyboard, { once: true });
-    }, 300);
-  }
-}
-
-function saveEdits(card, button) {
-  const index = card.dataset.index;
-  const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
-  const updatedTrade = tradeEntries[index];
-  
-  // Get all editable fields
-  const editableFields = card.querySelectorAll('.editable');
-  editableFields.forEach(field => {
-    const fieldName = field.dataset.field;
-    updatedTrade[fieldName] = field.textContent;
-  });
-  
-  // Update localStorage
-  tradeEntries[index] = updatedTrade;
-  localStorage.setItem('tradeEntries', JSON.stringify(tradeEntries));
-  
-  // Exit edit mode
-  card.classList.remove('editing');
-  button.textContent = 'Edit';
-  
-  // Make fields non-editable
-  editableFields.forEach(field => {
-    field.contentEditable = 'false';
-    field.style.border = 'none';
-    field.style.backgroundColor = 'transparent';
-  });
-  
-  // Blur any focused field to dismiss mobile keyboard
-  if (document.activeElement) {
-    document.activeElement.blur();
-  }
-}
-
-// Toggle card details visibility
+// ======================
+// Card Interaction Functions
+// ======================
 function toggleCardDetails(card, button) {
   const details = card.querySelector('.card-details');
   const isHidden = details.style.display === 'none';
@@ -200,19 +122,101 @@ function toggleCardDetails(card, button) {
     button.textContent = 'View';
   }
   
-  // Scroll to the card for better mobile experience
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function toggleEditMode(card, button) {
+  const isEditing = card.classList.contains('editing');
+  
+  if (isEditing) {
+    saveEdits(card, button);
+  } else {
+    enterEditMode(card, button);
+  }
+}
+
+function enterEditMode(card, button) {
+  card.classList.add('editing');
+  button.textContent = 'Save';
+  
+  const editableFields = card.querySelectorAll('.editable');
+  editableFields.forEach(field => {
+    field.contentEditable = 'true';
+    field.style.border = '1px dashed #E6B33C';
+    field.style.backgroundColor = 'rgba(230, 179, 60, 0.1)';
+    field.style.padding = '2px';
+    field.style.borderRadius = '3px';
+    
+    field.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveEdits(card, button);
+      }
+    });
+  });
+  
+  const details = card.querySelector('.card-details');
+  if (details.style.display === 'none') {
+    details.style.display = 'block';
+    card.classList.remove('minimized');
+    card.querySelector('.view-btn').textContent = 'Hide';
+  }
+  
   setTimeout(() => {
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, 100);
+  
+  if ('ontouchstart' in window) {
+    const dismissKeyboard = function(e) {
+      if (!card.contains(e.target)) {
+        saveEdits(card, button);
+        document.removeEventListener('touchstart', dismissKeyboard);
+      }
+    };
+    
+    setTimeout(() => {
+      document.addEventListener('touchstart', dismissKeyboard, { once: true });
+    }, 300);
+  }
 }
 
-// Delete trade with confirmation modal
+function saveEdits(card, button) {
+  const index = card.dataset.index;
+  const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
+  const updatedTrade = tradeEntries[index];
+  
+  const editableFields = card.querySelectorAll('.editable');
+  editableFields.forEach(field => {
+    const fieldName = field.dataset.field;
+    updatedTrade[fieldName] = field.textContent;
+  });
+  
+  tradeEntries[index] = updatedTrade;
+  localStorage.setItem('tradeEntries', JSON.stringify(tradeEntries));
+  
+  card.classList.remove('editing');
+  button.textContent = 'Edit';
+  
+  editableFields.forEach(field => {
+    field.contentEditable = 'false';
+    field.style.border = 'none';
+    field.style.backgroundColor = 'transparent';
+  });
+  
+  if (document.activeElement) {
+    document.activeElement.blur();
+  }
+}
+
+// ======================
+// Delete/Share Modals
+// ======================
 function deleteTrade(index) {
-  // Remove existing modal if present
+  triggerHaptic();
+  
   let existingModal = document.getElementById('deleteModal');
   if (existingModal) existingModal.remove();
 
-  // Create modal
   let modal = document.createElement('div');
   modal.id = 'deleteModal';
   modal.style.position = 'fixed';
@@ -227,7 +231,6 @@ function deleteTrade(index) {
   modal.style.zIndex = '1001';
   modal.style.fontSize = '10px';
 
-  // Modal content
   let modalContent = document.createElement('div');
   modalContent.style.backgroundColor = '#000';
   modalContent.style.color = '#E6B33C';
@@ -238,12 +241,10 @@ function deleteTrade(index) {
   modalContent.style.maxWidth = '300px';
   modalContent.style.borderRadius = '10px';
 
-  // Modal elements
   let text = document.createElement('p');
   text.textContent = 'ARE YOU SURE TO DELETE?';
   modalContent.appendChild(text);
 
-  // Yes button
   let confirmBtn = document.createElement('button');
   confirmBtn.textContent = 'YES';
   confirmBtn.style.backgroundColor = '#E6B33C';
@@ -255,6 +256,7 @@ function deleteTrade(index) {
   confirmBtn.style.margin = '10px';
   confirmBtn.style.fontFamily = "'Press Start 2P', sans-serif";
   confirmBtn.onclick = function() {
+    triggerHaptic();
     const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
     tradeEntries.splice(index, 1);
     localStorage.setItem('tradeEntries', JSON.stringify(tradeEntries));
@@ -263,7 +265,6 @@ function deleteTrade(index) {
     modal.remove();
   };
 
-  // No button
   let cancelBtn = document.createElement('button');
   cancelBtn.textContent = 'NO';
   cancelBtn.style.backgroundColor = '#E6B33C';
@@ -275,23 +276,22 @@ function deleteTrade(index) {
   cancelBtn.style.margin = '10px';
   cancelBtn.style.fontFamily = "'Press Start 2P', sans-serif";
   cancelBtn.onclick = function() {
+    triggerHaptic();
     modal.remove();
   };
 
-  // Append elements
   modalContent.appendChild(confirmBtn);
   modalContent.appendChild(cancelBtn);
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
 }
 
-// Share options modal
 function showShareOptions(trade) {
-  // Remove existing modal if present
+  triggerHaptic();
+  
   let existingModal = document.getElementById('shareModal');
   if (existingModal) existingModal.remove();
 
-  // Create modal
   let modal = document.createElement('div');
   modal.id = 'shareModal';
   modal.style.position = 'fixed';
@@ -306,7 +306,6 @@ function showShareOptions(trade) {
   modal.style.zIndex = '1001';
   modal.style.fontSize = '10px';
 
-  // Modal content
   let modalContent = document.createElement('div');
   modalContent.style.backgroundColor = '#000';
   modalContent.style.color = '#E6B33C';
@@ -317,12 +316,10 @@ function showShareOptions(trade) {
   modalContent.style.maxWidth = '300px';
   modalContent.style.borderRadius = '10px';
 
-  // Title
   let title = document.createElement('h3');
   title.textContent = 'Share Trade As:';
   modalContent.appendChild(title);
 
-  // Share buttons
   const shareButtons = [
     { text: 'Text', action: () => shareTradeAsText(trade) },
     { text: 'CSV', action: () => shareTradeAsCSV(trade) },
@@ -341,18 +338,20 @@ function showShareOptions(trade) {
     button.style.margin = '10px';
     button.style.fontFamily = "'Press Start 2P', sans-serif";
     button.onclick = function() {
+      triggerHaptic();
       btn.action();
       modal.remove();
     };
     modalContent.appendChild(button);
   });
 
-  // Append modal
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
 }
 
-// Share as text
+// ======================
+// Sharing Functions
+// ======================
 function shareTradeAsText(trade) {
   const tradeDetails = `Trade Details:
     Date: ${trade.date}
@@ -376,7 +375,6 @@ function shareTradeAsText(trade) {
   }
 }
 
-// Share as CSV
 function shareTradeAsCSV(trade) {
   const csvContent = `Date,Time,Session,Pair,Setup,Playbook Entry,Timeframe,Buy/Sell,Pips,Outcome\n${trade.date},${trade.time},${trade.session},${trade.pair},${trade.setup},${trade.entry},${trade.timeframe},${trade.buySell},${trade.pips},${trade.outcome}`;
   const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -391,11 +389,9 @@ function shareTradeAsCSV(trade) {
     link.href = URL.createObjectURL(blob);
     link.download = `trade-${trade.date}-${trade.time}.csv`;
     link.click();
-    alert('CSV file downloaded. You can share it manually.');
   }
 }
 
-// Share as PDF
 function shareTradeAsPDF(trade) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -425,11 +421,12 @@ function shareTradeAsPDF(trade) {
     link.href = URL.createObjectURL(pdfBlob);
     link.download = `trade-${trade.date}-${trade.time}.pdf`;
     link.click();
-    alert('PDF file downloaded. You can share it manually.');
   }
 }
 
-// Filter trades
+// ======================
+// Filtering
+// ======================
 function filterTrades(filterType, customDate = null) {
   const tradeEntries = JSON.parse(localStorage.getItem('tradeEntries')) || [];
   const today = new Date();
@@ -457,8 +454,11 @@ function filterTrades(filterType, customDate = null) {
   filteredTrades.forEach((trade, index) => addTradeToCards(trade, index));
 }
 
-// Filter event listeners
+// ======================
+// Filter Event Listeners
+// ======================
 document.getElementById('filter').addEventListener('change', function() {
+  triggerHaptic();
   const filterValue = this.value;
   const customDateContainer = document.getElementById('customDateContainer');
   
@@ -471,14 +471,18 @@ document.getElementById('filter').addEventListener('change', function() {
 });
 
 document.getElementById('customDate').addEventListener('change', function() {
+  triggerHaptic();
   filterTrades('custom', this.value);
 });
 
 document.getElementById('clearFilter').addEventListener('click', function() {
+  triggerHaptic();
   document.getElementById('filter').value = 'all';
   document.getElementById('customDateContainer').style.display = 'none';
   filterTrades('all');
 });
 
-// Initialize
+// ======================
+// Initialization
+// ======================
 document.addEventListener('DOMContentLoaded', loadTrades);
