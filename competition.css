@@ -1,0 +1,371 @@
+:root {
+  --background-color: #000;
+  --text-color: #E6B33C;
+  --accent-color: #E6B33C;
+  --border-color: #E6B33C;
+  --icon-color: #E6B33C;
+}
+
+[data-theme="light"] {
+  --background-color: #E6B33C;
+  --text-color: #000;
+  --accent-color: #000;
+  --border-color: #000;
+  --icon-color: #000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Press Start 2P', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 14px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+  text-decoration: none;
+  color: var(--text-color);
+}
+
+header {
+  background-color: var(--background-color);
+  padding: 20px 0;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  max-width: 100%;
+  text-align: center;
+}
+
+.logo {
+  width: 5em;
+  height: auto;
+  border: 1px solid var(--border-color);
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-color);
+  margin-left: 20px;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background-color: var(--text-color);
+  margin: 4px 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.hamburger.active span {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-list {
+  list-style-type: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list li {
+  margin: 0 15px;
+}
+
+.nav-list li a {
+  color: var(--text-color);
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  transition: color 0.3s ease;
+}
+
+.nav-list li a.active {
+  background-color: var(--accent-color);
+  color: var(--background-color);
+  padding: 12px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-list li a i {
+  font-size: 18px;
+  color: var(--icon-color);
+}
+
+main {
+  padding-top: 120px;
+  padding-bottom: 60px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Task/Form Styles */
+.task-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.task-card {
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.task-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.task-header h2 {
+  font-size: 18px;
+  margin-bottom: 0.5rem;
+}
+
+.task-header p {
+  font-size: 10px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 12px;
+}
+
+.task-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: 12px;
+}
+
+.task-button {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.task-button:hover {
+  background: var(--accent-color);
+  color: var(--background-color);
+}
+
+.task-button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Profile Dashboard */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  object-fit: cover;
+}
+
+.profile-info h2 {
+  font-size: 16px;
+  margin-bottom: 0.8rem;
+}
+
+.bot-link {
+  font-size: 10px;
+  word-break: break-all;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.stat-item i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-item h3 {
+  font-size: 10px;
+  margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    height: 100vh;
+    background-color: var(--background-color);
+    border-left: 2px solid var(--border-color);
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 0px;
+    transition: right 0.4s ease-in-out;
+    z-index: 1000;
+  }
+
+  .logotxt {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    font-size: 20px;
+  }
+
+  .nav-menu.active {
+    right: 0;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 20px;
+  }
+
+  .nav-list li {
+    margin: 10px 0;
+  }
+
+  .nav-list li a {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .invite-container {
+    padding-top: 5%;
+  }
+
+  .invite-header h2 {
+    font-size: 15px;
+  }
+
+  .copy-button,
+  .social-button {
+    font-size: 10px;
+    padding: 10px;
+  }
+
+  .stat-number {
+    font-size: 14px;
+  }
+
+  .stat-card {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  nav ul.nav-list {
+    flex-direction: column;
+  }
+
+  nav ul.nav-list li a {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 12px;
+  }
+
+  .stat-card h3 {
+    font-size: 14px;
+  }
+
+  .stat-card p {
+    font-size: 16px;
+  }
+}

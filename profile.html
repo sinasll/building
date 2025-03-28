@@ -27,6 +27,7 @@
         <h1 class="logotxt">PipCore</h1>
         <ul class="nav-list">
           <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+          <li><a href="competition.html"><i class="fas fa-trophy"></i> Competition</a></li>
           <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
           <li><a href="journal.html"><i class="fas fa-book"></i> Journal</a></li>
           <li><a href="calendar.html"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
@@ -70,31 +71,22 @@
       </div>
     </div>
 
-<div class="invite-container">
-  <div class="invite-card">
-    <div class="invite-header"><h2>Invite Traders</h2></div>
-    <div class="invite-content">
-      <div class="share-buttons">
-        <a href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fpipcorebot%3Fstartapp&text=Join%20PipCore%20%F0%9F%94%A5%0A%0A%E2%80%A2%20Track%20your%20trades%20like%20a%20pro%0A%E2%80%A2%20Analyze%20performance%20with%20smart%20insights%0A%E2%80%A2%20All-in-one%20trading%20companion%0A%0AStart%20here%3A%20https%3A%2F%2Ft.me%2Fpipcorebot%3Fstartapp" 
-           class="cta-button telegram-button">
-          Share PipCore
-        </a>
-      </div>
-      <div class="share-link-box">
-        <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
+    <div class="invite-container">
+      <div class="invite-card">
+        <div class="invite-header"><h2>Invite Traders</h2></div>
+        <div class="invite-content">
+          <div class="share-buttons">
+            <a href="https://t.me/share/url?url=https://t.me/pipcorebot&text=Join%20PipCore%20and%20track%20your%20trading%20journey!%20PipCore%20is%20all%20you%20need." 
+               class="cta-button telegram-button">
+              Share PipCore
+            </a>
+          </div>
+          <div class="share-link-box">
+            <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
-<script>
-function copyToClipboard() {
-  const link = "https://t.me/pipcorebot?startapp";
-  navigator.clipboard.writeText(link)
-    .then(() => alert('Invite link copied!'))
-    .catch(err => console.error('Copy failed:', err));
-}
-</script>
   </main>
 
   <script>

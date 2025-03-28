@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PipCore Competition</title>
+  
+  <!-- Manifest for TON Connect -->
+  <link rel="manifest" href="/tonconnect-manifest.json">
+  
+  <!-- Styles & Fonts -->
+  <link href="competition.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- TON Connect SDK -->
+  <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <div class="header-container">
+      <img src="logo.png" alt="PipCore logo" class="logo">
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <nav class="nav-menu" id="nav-menu">
+        <h1 class="logotxt">PipCore</h1>
+        <ul class="nav-list">
+          <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+          <li><a href="competition.html" class="active"><i class="fas fa-trophy"></i> Competition</a></li>
+          <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="journal.html"><i class="fas fa-book"></i> Journal</a></li>
+          <li><a href="calendar.html"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
+          <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
+        </ul>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="task-container" id="registration">
+        <div class="task-card">
+          <div class="task-header">
+            <h2><i class="fas fa-user-plus"></i> COMPETITION REGISTRATION</h2>
+            <p>Join the PipCore challenge</p>
+          </div>
+          
+          <form id="registrationForm">
+            <div class="form-group">
+              <label for="email"><i class="fas fa-envelope"></i> EMAIL:</label>
+              <input type="email" id="email" name="email" class="task-input" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="username"><i class="fas fa-user"></i> USERNAME:</label>
+              <input type="text" id="username" name="username" class="task-input" required>
+              <div class="availability-status" id="usernameStatus"></div>
+            </div>
+      
+            <!-- Add Wallet Connection Section -->
+            <div class="form-group">
+              <label><i class="fas fa-wallet"></i> WALLET CONNECTION:</label>
+              <button type="button" class="task-button" id="connectWalletBtn">
+                <i class="fas fa-link"></i> CONNECT WALLET
+              </button>
+              <div id="walletStatus" class="wallet-status">
+                Not connected
+              </div>
+            </div>
+      
+            <div class="task-buttons">
+              <button type="submit" class="task-button" id="submitBtn" disabled>
+                <i class="fas fa-check-circle"></i> COMPLETE REGISTRATION
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+      
+      <script>
+      // Initialize TON Connect
+      const connector = new TonConnectSDK.TonConnect({
+        manifestUrl: 'D:\in development\PipCore v1.3.1\tonconnect-manifest.json' // REPLACE WITH YOUR MANIFEST URL
+      });
+      
+      // Restore existing connection
+      connector.restoreConnection();
+      
+      // Wallet connection status element
+      const walletStatus = document.getElementById('walletStatus');
+      const connectWalletBtn = document.getElementById('connectWalletBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      // Update UI when connection status changes
+      const unsubscribe = connector.onStatusChange(wallet => {
+        if (wallet) {
+          walletStatus.innerHTML = `Connected: ${TonConnectSDK.toUserFriendlyAddress(wallet.account.address)}`;
+          walletStatus.style.color = 'green';
+          connectWalletBtn.textContent = 'DISCONNECT WALLET';
+          checkFormValidity();
+        } else {
+          walletStatus.innerHTML = 'Not connected';
+          walletStatus.style.color = 'red';
+          connectWalletBtn.textContent = 'CONNECT WALLET';
+          checkFormValidity();
+        }
+      });
+      
+      // Handle wallet connection/disconnection
+      connectWalletBtn.addEventListener('click', async () => {
+        if (connector.connected) {
+          await connector.disconnect();
+        } else {
+          try {
+            const wallets = await TonConnectSDK.getWallets();
+            const tonkeeper = wallets.find(w => w.name === 'Tonkeeper');
+            
+            if (tonkeeper) {
+              if (tonkeeper.embedded) {
+                connector.connect({ jsBridgeKey: tonkeeper.jsBridgeKey });
+              } else {
+                const link = connector.connect({
+                  universalLink: tonkeeper.universalLink,
+                  bridgeUrl: tonkeeper.bridgeUrl
+                });
+                window.open(link, '_blank');
+              }
+            }
+          } catch (error) {
+            console.error('Connection error:', error);
+            alert('Error connecting wallet');
+          }
+        }
+      });
+      
+      // Form validation
+      function checkFormValidity() {
+        const emailValid = document.getElementById('email').checkValidity();
+        const usernameValid = document.getElementById('username').checkValidity();
+        submitBtn.disabled = !(emailValid && usernameValid && connector.connected);
+      }
+      
+      // Listen for form input changes
+      document.getElementById('email').addEventListener('input', checkFormValidity);
+      document.getElementById('username').addEventListener('input', checkFormValidity);
+      
+      // Handle form submission
+      document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = {
+          email: document.getElementById('email').value,
+          username: document.getElementById('username').value,
+          walletAddress: connector.connected ? TonConnectSDK.toUserFriendlyAddress(connector.wallet.account.address) : null
+        };
+      
+        try {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSING...';
+          
+          // Send data to your backend
+          const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+      
+          if (response.ok) {
+            alert('Registration successful!');
+            window.location.reload();
+          } else {
+            throw new Error('Registration failed');
+          }
+        } catch (error) {
+          console.error('Registration error:', error);
+          alert('Registration failed. Please try again.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETE REGISTRATION';
+        }
+      });
+      </script>
+
+    <!-- Competition Profile Dashboard -->
+    <section class="task-container" id="dashboard" style="display: none;">
+      <div class="task-card">
+        <div class="task-header">
+          <h2><i class="fas fa-trophy"></i> COMPETITION PROFILE</h2>
+          <p>Your stats and achievements</p>
+        </div>
+        
+        <div class="profile-header">
+          <img src="" alt="Profile Avatar" class="profile-avatar" id="tgAvatar">
+          <div class="profile-info">
+            <h2 id="profileUsername"></h2>
+            <p class="bot-link"><i class="fas fa-wallet"></i> <span id="profileWallet"></span></p>
+            <p class="bot-link"><i class="fas fa-envelope"></i> <span id="profileEmail"></span></p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-item">
+            <i class="fas fa-trophy"></i>
+            <h3>RANK</h3>
+            <p id="userRank">-</p>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-coins"></i>
+            <h3>PIP POINTS</h3>
+            <p id="pipPoints">0</p>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-bolt"></i>
+            <h3>STREAK</h3>
+            <p id="streakDays">0 DAYS</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    hamburger.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      hamburger.classList.toggle('active');
+      triggerHaptic();
+    });
+
+    // Navigation active state
+    const navLinks = document.querySelectorAll('.nav-list li a');
+    const currentPage = window.location.pathname.split('/').pop() || 'profile.html';
+    
+    navLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        navLinks.forEach(link => link.classList.remove('active'));
+        this.classList.add('active');
+      });
+      
+      if (link.getAttribute('href') === currentPage) {
+        link.classList.add('active');
+      }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    body.setAttribute('data-theme', savedTheme);
+    themeToggle.innerHTML = `<i class="fas ${savedTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+      triggerHaptic();
+    });
+  </script>
+
+</body>
+</html>
