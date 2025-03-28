@@ -5,19 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PipCore Competition</title>
   
-  <!-- Manifest for TON Connect -->
-  <link rel="manifest" href="/tonconnect-manifest.json">
-  
   <!-- Styles & Fonts -->
   <link href="competition.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
+
+
+ <!-- Add these to your head section -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+<script>
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAzXSCn_QL2XeyRZD71By443sl4wOtXf2Y",
+    authDomain: "pipcore-8844f.firebaseapp.com",
+    projectId: "pipcore-8844f",
+    storageBucket: "pipcore-8844f.firebasestorage.app",
+    messagingSenderId: "921115337984",
+    appId: "1:921115337984:web:17161651342ad78017bfe5",
+    measurementId: "G-RKL37B0B7N"
+  };
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+  
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- TON Connect SDK -->
-  <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
 </head>
 
 <body>
@@ -47,148 +68,34 @@
   </header>
 
   <main>
+    <!-- Registration Section -->
     <section class="task-container" id="registration">
-        <div class="task-card">
-          <div class="task-header">
-            <h2><i class="fas fa-user-plus"></i> COMPETITION REGISTRATION</h2>
-            <p>Join the PipCore challenge</p>
+      <div class="task-card">
+        <div class="task-header">
+          <h2><i class="fas fa-user-plus"></i> COMPETITION REGISTRATION</h2>
+          <p>Join the PipCore challenge</p>
+        </div>
+        
+        <form id="registrationForm">
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> EMAIL:</label>
+            <input type="email" id="email" name="email" class="task-input" required>
           </div>
           
-          <form id="registrationForm">
-            <div class="form-group">
-              <label for="email"><i class="fas fa-envelope"></i> EMAIL:</label>
-              <input type="email" id="email" name="email" class="task-input" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="username"><i class="fas fa-user"></i> USERNAME:</label>
-              <input type="text" id="username" name="username" class="task-input" required>
-              <div class="availability-status" id="usernameStatus"></div>
-            </div>
-      
-            <!-- Add Wallet Connection Section -->
-            <div class="form-group">
-              <label><i class="fas fa-wallet"></i> WALLET CONNECTION:</label>
-              <button type="button" class="task-button" id="connectWalletBtn">
-                <i class="fas fa-link"></i> CONNECT WALLET
-              </button>
-              <div id="walletStatus" class="wallet-status">
-                Not connected
-              </div>
-            </div>
-      
-            <div class="task-buttons">
-              <button type="submit" class="task-button" id="submitBtn" disabled>
-                <i class="fas fa-check-circle"></i> COMPLETE REGISTRATION
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-      
-      <script>
-      // Initialize TON Connect
-      const connector = new TonConnectSDK.TonConnect({
-        manifestUrl: 'D:\in development\PipCore v1.3.1\tonconnect-manifest.json' // REPLACE WITH YOUR MANIFEST URL
-      });
-      
-      // Restore existing connection
-      connector.restoreConnection();
-      
-      // Wallet connection status element
-      const walletStatus = document.getElementById('walletStatus');
-      const connectWalletBtn = document.getElementById('connectWalletBtn');
-      const submitBtn = document.getElementById('submitBtn');
-      
-      // Update UI when connection status changes
-      const unsubscribe = connector.onStatusChange(wallet => {
-        if (wallet) {
-          walletStatus.innerHTML = `Connected: ${TonConnectSDK.toUserFriendlyAddress(wallet.account.address)}`;
-          walletStatus.style.color = 'green';
-          connectWalletBtn.textContent = 'DISCONNECT WALLET';
-          checkFormValidity();
-        } else {
-          walletStatus.innerHTML = 'Not connected';
-          walletStatus.style.color = 'red';
-          connectWalletBtn.textContent = 'CONNECT WALLET';
-          checkFormValidity();
-        }
-      });
-      
-      // Handle wallet connection/disconnection
-      connectWalletBtn.addEventListener('click', async () => {
-        if (connector.connected) {
-          await connector.disconnect();
-        } else {
-          try {
-            const wallets = await TonConnectSDK.getWallets();
-            const tonkeeper = wallets.find(w => w.name === 'Tonkeeper');
-            
-            if (tonkeeper) {
-              if (tonkeeper.embedded) {
-                connector.connect({ jsBridgeKey: tonkeeper.jsBridgeKey });
-              } else {
-                const link = connector.connect({
-                  universalLink: tonkeeper.universalLink,
-                  bridgeUrl: tonkeeper.bridgeUrl
-                });
-                window.open(link, '_blank');
-              }
-            }
-          } catch (error) {
-            console.error('Connection error:', error);
-            alert('Error connecting wallet');
-          }
-        }
-      });
-      
-      // Form validation
-      function checkFormValidity() {
-        const emailValid = document.getElementById('email').checkValidity();
-        const usernameValid = document.getElementById('username').checkValidity();
-        submitBtn.disabled = !(emailValid && usernameValid && connector.connected);
-      }
-      
-      // Listen for form input changes
-      document.getElementById('email').addEventListener('input', checkFormValidity);
-      document.getElementById('username').addEventListener('input', checkFormValidity);
-      
-      // Handle form submission
-      document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = {
-          email: document.getElementById('email').value,
-          username: document.getElementById('username').value,
-          walletAddress: connector.connected ? TonConnectSDK.toUserFriendlyAddress(connector.wallet.account.address) : null
-        };
-      
-        try {
-          submitBtn.disabled = true;
-          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSING...';
-          
-          // Send data to your backend
-          const response = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-          });
-      
-          if (response.ok) {
-            alert('Registration successful!');
-            window.location.reload();
-          } else {
-            throw new Error('Registration failed');
-          }
-        } catch (error) {
-          console.error('Registration error:', error);
-          alert('Registration failed. Please try again.');
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETE REGISTRATION';
-        }
-      });
-      </script>
+          <div class="form-group">
+            <label for="username"><i class="fas fa-user"></i> USERNAME:</label>
+            <input type="text" id="username" name="username" class="task-input" required>
+            <div class="availability-status" id="usernameStatus"></div>
+          </div>
+
+          <div class="task-buttons">
+            <button type="submit" class="task-button" id="submitBtn">
+              <i class="fas fa-check-circle"></i> COMPLETE REGISTRATION
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
 
     <!-- Competition Profile Dashboard -->
     <section class="task-container" id="dashboard" style="display: none;">
@@ -202,7 +109,6 @@
           <img src="" alt="Profile Avatar" class="profile-avatar" id="tgAvatar">
           <div class="profile-info">
             <h2 id="profileUsername"></h2>
-            <p class="bot-link"><i class="fas fa-wallet"></i> <span id="profileWallet"></span></p>
             <p class="bot-link"><i class="fas fa-envelope"></i> <span id="profileEmail"></span></p>
           </div>
         </div>
@@ -224,53 +130,351 @@
             <p id="streakDays">0 DAYS</p>
           </div>
         </div>
+
+        <div class="task-buttons">
+          <button type="button" class="task-button danger" id="deleteProfileBtn">
+            <i class="fas fa-trash-alt"></i> DELETE PROFILE
+          </button>
+        </div>
       </div>
     </section>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <h3>Confirm Profile Deletion</h3>
+        <p>Are you sure you want to delete your profile? This action cannot be undone.</p>
+        <div class="modal-buttons">
+          <button id="confirmDeleteBtn" class="task-button danger">Delete</button>
+          <button id="cancelDeleteBtn" class="task-button">Cancel</button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script>
-        // Hamburger menu toggle
-        const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('nav-menu');
-    hamburger.addEventListener('click', () => {
-      navMenu.classList.toggle('active');
-      hamburger.classList.toggle('active');
+    // Telegram WebApp Initialization
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // DOM Elements
+    const registrationSection = document.getElementById('registration');
+    const dashboardSection = document.getElementById('dashboard');
+    const emailInput = document.getElementById('email');
+    const usernameInput = document.getElementById('username');
+    const submitBtn = document.getElementById('submitBtn');
+    const tgAvatar = document.getElementById('tgAvatar');
+    const deleteProfileBtn = document.getElementById('deleteProfileBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+    // Storage key
+    const STORAGE_KEY = 'pipcore_user_data';
+
+    // User Data
+    let userData = {
+      email: '',
+      username: '',
+      tgData: tg.initDataUnsafe.user || {},
+      registered: false
+    };
+
+    // Initialize
+    function init() {
+      loadUserData();
+      setupEventListeners();
+      checkRegistrationStatus();
+    }
+
+    // Load saved user data
+    function loadUserData() {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          userData = { ...userData, ...parsedData };
+        } catch (e) {
+          console.error('Failed to parse saved data', e);
+        }
+      }
+    }
+
+    // Save user data to localStorage
+    function saveUserData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+    }
+
+    // Delete user data
+    function deleteUserData() {
+      localStorage.removeItem(STORAGE_KEY);
+      userData = {
+        email: '',
+        username: '',
+        tgData: tg.initDataUnsafe.user || {},
+        registered: false
+      };
+    }
+
+    // Check if user is already registered
+    function checkRegistrationStatus() {
+      if (userData.registered) {
+        showDashboard();
+      } else {
+        showRegistration();
+      }
+    }
+
+    // Show registration form
+    function showRegistration() {
+      registrationSection.style.display = 'block';
+      dashboardSection.style.display = 'none';
+      
+      // Pre-fill form if we have partial data
+      if (userData.email) emailInput.value = userData.email;
+      if (userData.username) usernameInput.value = userData.username;
+      
+      validateForm();
+    }
+
+    // Show dashboard
+    function showDashboard() {
+      registrationSection.style.display = 'none';
+      dashboardSection.style.display = 'block';
+      
+      // Initialize Telegram avatar if available
+      if (userData.tgData.photo_url) {
+        tgAvatar.src = userData.tgData.photo_url;
+      } else {
+        tgAvatar.src = 'logo.PNG';
+      }
+      
+      // Populate profile data
+      document.getElementById('profileUsername').textContent = 
+        userData.username || userData.tgData.username || 'Player';
+      document.getElementById('profileEmail').textContent = userData.email;
+    }
+
+    // Form Validation
+    function validateForm() {
+      const emailValid = emailInput.value.includes('@');
+      const usernameValid = usernameInput.value.length >= 3;
+      
+      submitBtn.disabled = !(emailValid && usernameValid);
+    }
+
+    // Username Availability Check
+    usernameInput.addEventListener('input', async (e) => {
+      const username = e.target.value;
+      const statusElement = document.getElementById('usernameStatus');
+      
+      if (username.length < 3) {
+        statusElement.textContent = 'Username must be at least 3 characters';
+        statusElement.style.color = 'var(--error-color)';
+        return;
+      }
+      
+      // Simulate API call
+      const { available } = await checkUsernameAvailability(username);
+      statusElement.textContent = available ? '✅ Available' : '❌ Taken';
+      statusElement.style.color = available ? 'var(--success-color)' : 'var(--error-color)';
+      userData.username = username;
+      validateForm();
+    });
+
+    // Email Validation
+    emailInput.addEventListener('input', () => {
+      userData.email = emailInput.value;
+      validateForm();
+    });
+
+// Form Submission
+document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  try {
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+    
+    console.log("Attempting to register user:", userData); // Debug log
+    
+    // Add user to Firebase
+    const docRef = await db.collection('users').add({
+      email: userData.email,
+      username: userData.username,
+      telegramId: userData.tgData.id || null,
+      telegramUsername: userData.tgData.username || null,
+      registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+      pipPoints: 0,
+      streak: 0
+    });
+    
+    console.log("User registered with ID:", docRef.id); // Debug log
+    
+    // Mark as registered
+    userData.registered = true;
+    userData.firebaseId = docRef.id; // Store the document ID
+    saveUserData();
+    
+    showDashboard();
+    triggerHaptic();
+    
+  } catch (error) {
+    console.error("Registration error:", error); // Debug log
+    showError('Registration failed: ' + error.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> COMPLETE REGISTRATION';
+  }
+});
+
+    // Delete Profile Button
+    deleteProfileBtn.addEventListener('click', () => {
+      deleteModal.style.display = 'block';
+    });
+
+    // Confirm Delete
+    confirmDeleteBtn.addEventListener('click', () => {
+      deleteUserData();
+      deleteModal.style.display = 'none';
+      showRegistration();
       triggerHaptic();
     });
 
-    // Navigation active state
-    const navLinks = document.querySelectorAll('.nav-list li a');
-    const currentPage = window.location.pathname.split('/').pop() || 'profile.html';
-    
-    navLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        navLinks.forEach(link => link.classList.remove('active'));
-        this.classList.add('active');
-      });
-      
-      if (link.getAttribute('href') === currentPage) {
-        link.classList.add('active');
+    // Cancel Delete
+    cancelDeleteBtn.addEventListener('click', () => {
+      deleteModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target === deleteModal) {
+        deleteModal.style.display = 'none';
       }
     });
 
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    
-    body.setAttribute('data-theme', savedTheme);
-    themeToggle.innerHTML = `<i class="fas ${savedTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+    // Helper Functions
+    async function checkUsernameAvailability(username) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({ available: Math.random() > 0.3 }); // 70% chance of being available
+        }, 500);
+      });
+    }
 
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = body.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    async function submitRegistration(data) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({ success: true });
+        }, 1000);
+      });
+    }
+
+    function triggerHaptic() {
+      if (tg.isVersionAtLeast('6.1')) {
+        tg.HapticFeedback.impactOccurred('light');
+      }
+    }
+
+    function showError(message) {
+      tg.showAlert(message);
+    }
+
+    // Setup event listeners for UI elements
+    function setupEventListeners() {
+      // Hamburger menu toggle
+      const hamburger = document.getElementById('hamburger');
+      const navMenu = document.getElementById('nav-menu');
+      hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        hamburger.classList.toggle('active');
+        triggerHaptic();
+      });
+
+      // Navigation active state
+      const navLinks = document.querySelectorAll('.nav-list li a');
+      const currentPage = window.location.pathname.split('/').pop() || 'profile.html';
       
-      body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
-      triggerHaptic();
-    });
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          navLinks.forEach(link => link.classList.remove('active'));
+          this.classList.add('active');
+        });
+        
+        if (link.getAttribute('href') === currentPage) {
+          link.classList.add('active');
+        }
+      });
+
+      // Theme toggle functionality
+      const themeToggle = document.getElementById('theme-toggle');
+      const body = document.body;
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      
+      body.setAttribute('data-theme', savedTheme);
+      themeToggle.innerHTML = `<i class="fas ${savedTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+        triggerHaptic();
+      });
+    }
+
+    // Initialize the app
+    init();
   </script>
 
+  <style>
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: var(--bg-color);
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .task-button.danger {
+      background-color: #f44336;
+    }
+
+    .task-button.danger:hover {
+      background-color: #d32f2f;
+    }
+
+    /* Wallet status styles */
+    .wallet-status {
+      margin-top: 8px;
+      font-size: 0.9em;
+      padding: 5px;
+      border-radius: 4px;
+    }
+  </style>
 </body>
 </html>
