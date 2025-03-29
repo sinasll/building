@@ -10,23 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAzXSCn_QL2XeyRZD71By443sl4wOtXf2Y",
-      authDomain: "pipcore-8844f.firebaseapp.com",
-      projectId: "pipcore-8844f",
-      storageBucket: "pipcore-8844f.firebasestorage.app",
-      messagingSenderId: "921115337984",
-      appId: "1:921115337984:web:17161651342ad78017bfe5",
-      measurementId: "G-RKL37B0B7N"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
-
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -110,143 +93,18 @@
     // Telegram WebApp initialization
     const tg = window.Telegram?.WebApp;
     
-    // Enhanced Tracking System
-    let userId = null;
-    let isGuest = false;
-    let sessionStart = new Date();
-    let lastActivityTime = new Date();
-
-    // Generate unique device fingerprint
-    function generateDeviceFingerprint() {
-      const components = [
-        navigator.userAgent,
-        screen.width,
-        screen.height,
-        navigator.language,
-        new Date().getTimezoneOffset(),
-        !!navigator.cookieEnabled,
-        !!window.sessionStorage,
-        !!window.localStorage
-      ];
-      return 'pipcore-' + components.join('|').hashCode();
-    }
-
-    // Simple hash function
-    String.prototype.hashCode = function() {
-      let hash = 0;
-      for (let i = 0; i < this.length; i++) {
-        const char = this.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0; // Convert to 32bit integer
-      }
-      return Math.abs(hash).toString(36);
-    };
-
-    // Initialize user tracking
-    async function initUserTracking() {
-      try {
-        // Get or create user ID
-        userId = localStorage.getItem('pipcoreUserId');
-        
-        if (!userId) {
-          userId = tg?.initDataUnsafe?.user?.id || generateDeviceFingerprint();
-          localStorage.setItem('pipcoreUserId', userId);
-        }
-
-        // Determine user type
-        isGuest = !tg?.initDataUnsafe?.user?.id;
-
-        // Prepare user data
-        const userData = {
-          username: tg?.initDataUnsafe?.user?.username || 'guest-' + Math.random().toString(36).substr(2, 4),
-          joined_at: firebase.firestore.FieldValue.serverTimestamp(),
-          last_active: firebase.firestore.FieldValue.serverTimestamp(),
-          is_guest: isGuest,
-          device_fingerprint: isGuest ? generateDeviceFingerprint() : null,
-          activities: [],
-          page_views: 0,
-          sessions: 1,
-          telegram_data: isGuest ? null : tg?.initDataUnsafe?.user
-        };
-
-        // Create or update user document
-        const userRef = db.collection('users').doc(userId);
-        const doc = await userRef.get();
-
-        if (!doc.exists) {
-          await userRef.set(userData);
-        } else {
-          await userRef.update({
-            last_active: firebase.firestore.FieldValue.serverTimestamp(),
-            page_views: firebase.firestore.FieldValue.increment(1),
-            sessions: firebase.firestore.FieldValue.increment(1)
-          });
-        }
-
-        // Update username display
-        document.getElementById('username').textContent = '@' + userData.username;
-
-        // Track initial page view
-        trackActivity('page_view', {
-          page: window.location.pathname,
-          referrer: document.referrer,
-          load_time: performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart
-        });
-
-        // Start session heartbeat
-        startSessionHeartbeat();
-
-      } catch (error) {
-        console.error('Tracking initialization error:', error);
-      }
-    }
-
-    // Activity tracking function
-    async function trackActivity(type, metadata = {}) {
-      try {
-        lastActivityTime = new Date();
-        
-        const activity = {
-          type,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          metadata: {
-            ...metadata,
-            user_agent: navigator.userAgent,
-            screen_resolution: `${screen.width}x${screen.height}`,
-            language: navigator.language,
-            session_duration: (new Date() - sessionStart) / 1000
-          }
-        };
-
-        await db.collection('users').doc(userId).update({
-          activities: firebase.firestore.FieldValue.arrayUnion(activity),
-          last_active: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-      } catch (error) {
-        console.error('Activity tracking error:', error);
-      }
-    }
-
-    // Session heartbeat (updates every 30 seconds while user is active)
-    function startSessionHeartbeat() {
-      setInterval(() => {
-        if (new Date() - lastActivityTime < 45000) { // 45 seconds of inactivity threshold
-          db.collection('users').doc(userId).update({
-            last_active: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
-      }, 30000);
+    // Set username from Telegram or default to guest
+    const usernameElement = document.getElementById('username');
+    if (tg?.initDataUnsafe?.user?.username) {
+      usernameElement.textContent = `@${tg.initDataUnsafe.user.username}`;
+    } else {
+      usernameElement.textContent = "@guest";
     }
 
     // Clipboard function
     function copyToClipboard() {
       const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot";
-      navigator.clipboard.writeText(message).then(() => {
-        trackActivity('copied_invite_link', {
-          content: message.substring(0, 100)
-        });
-      }).catch(err => {
+      navigator.clipboard.writeText(message).catch(err => {
         console.error('Failed to copy:', err);
       });
       triggerHaptic();
@@ -266,26 +124,7 @@
       );
       
       interactiveElements.forEach(element => {
-        element.addEventListener('click', function() {
-          triggerHaptic();
-          trackActivity('interaction', {
-            element: element.tagName,
-            action: 'click',
-            text: element.innerText?.substring(0, 50) || null
-          });
-        });
-      });
-    }
-
-    // Track all external link clicks
-    function trackExternalLinks() {
-      document.querySelectorAll('a[target="_blank"]').forEach(link => {
-        link.addEventListener('click', () => {
-          trackActivity('external_link_click', {
-            destination: link.href,
-            link_text: link.innerText?.substring(0, 50) || null
-          });
-        });
+        element.addEventListener('click', triggerHaptic);
       });
     }
 
@@ -296,9 +135,6 @@
       navMenu.classList.toggle('active');
       hamburger.classList.toggle('active');
       triggerHaptic();
-      trackActivity('menu_toggle', {
-        state: navMenu.classList.contains('active') ? 'opened' : 'closed'
-      });
     });
 
     // Navigation active state
@@ -309,10 +145,6 @@
       link.addEventListener('click', function() {
         navLinks.forEach(link => link.classList.remove('active'));
         this.classList.add('active');
-        trackActivity('navigation', {
-          destination: this.getAttribute('href'),
-          source: currentPage
-        });
       });
       
       if (link.getAttribute('href') === currentPage) {
@@ -336,49 +168,10 @@
       localStorage.setItem('theme', newTheme);
       themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
       triggerHaptic();
-      trackActivity('theme_change', {
-        new_theme: newTheme
-      });
     });
 
-    // Initialize everything when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      initUserTracking();
-      initHapticFeedback();
-      trackExternalLinks();
-      
-      // Track initial load
-      trackActivity('app_launch', {
-        platform: navigator.platform,
-        cookies_enabled: navigator.cookieEnabled,
-        screen_orientation: window.screen.orientation?.type || 'unknown'
-      });
-    });
-
-    // Track beforeunload
-    window.addEventListener('beforeunload', () => {
-      const sessionDuration = (new Date() - sessionStart) / 1000;
-      trackActivity('session_end', {
-        duration_seconds: sessionDuration,
-        page: window.location.pathname
-      });
-    });
-
-    // Track visibility changes
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        trackActivity('app_visible');
-      } else {
-        trackActivity('app_hidden');
-      }
-    });
-
-    // Track copy events
-    document.addEventListener('copy', (e) => {
-      trackActivity('content_copied', {
-        copied_text: window.getSelection().toString().substring(0, 100)
-      });
-    });
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initHapticFeedback);
   </script>
 </body>
 </html>
