@@ -10,6 +10,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzXSCn_QL2XeyRZD71By443sl4wOtXf2Y",
+      authDomain: "pipcore-8844f.firebaseapp.com",
+      projectId: "pipcore-8844f",
+      storageBucket: "pipcore-8844f.firebasestorage.app",
+      messagingSenderId: "921115337984",
+      appId: "1:921115337984:web:17161651342ad78017bfe5",
+      measurementId: "G-RKL37B0B7N"
+    };
+ 
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -93,14 +113,124 @@
     // Telegram WebApp initialization
     const tg = window.Telegram?.WebApp;
     
-    // Set username from Telegram or default to guest
-    const usernameElement = document.getElementById('username');
-    if (tg?.initDataUnsafe?.user?.username) {
-      usernameElement.textContent = `@${tg.initDataUnsafe.user.username}`;
-    } else {
-      usernameElement.textContent = "@guest";
+    // Firebase collections
+    const usersCollection = db.collection("users");
+    const guestUsersCollection = db.collection("guestUsers");
+    
+    // User data object
+    let userData = {
+      username: "",
+      isGuest: false,
+      userId: "",
+      joinedTime: new Date(),
+      lastActive: new Date()
+    };
+    
+    // Generate a random ID for guest users
+    function generateGuestId() {
+      return 'guest-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
     }
-
+    
+    // Generate a random username for guest users
+    function generateGuestUsername() {
+      const adjectives = ["Happy", "Silly", "Clever", "Brave", "Gentle", "Jolly", "Witty", "Fierce", "Noble", "Swift"];
+      const nouns = ["Trader", "Pipster", "Forexer", "Chartist", "Analyst", "Investor", "Scalper", "Swingster", "Hodler", "Bull"];
+      const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+      const randomNum = Math.floor(Math.random() * 1000);
+      return `${randomAdj}${randomNoun}${randomNum}`;
+    }
+    
+    // Initialize user tracking
+    async function initUserTracking() {
+      const usernameElement = document.getElementById('username');
+      
+      // Check if Telegram user is available
+      if (tg?.initDataUnsafe?.user) {
+        const tgUser = tg.initDataUnsafe.user;
+        userData.userId = tgUser.id.toString();
+        userData.username = tgUser.username || `user-${tgUser.id}`;
+        userData.isGuest = false;
+        
+        // Check if user exists in Firestore
+        const userDoc = await usersCollection.doc(userData.userId).get();
+        
+        if (!userDoc.exists) {
+          // New user - create document
+          await usersCollection.doc(userData.userId).set({
+            username: userData.username,
+            joinedTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+            isGuest: false,
+            activities: []
+          });
+        } else {
+          // Existing user - update lastActive
+          await usersCollection.doc(userData.userId).update({
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+        
+        usernameElement.textContent = `@${userData.username}`;
+      } else {
+        // Guest user - use localStorage to maintain consistency
+        let guestId = localStorage.getItem('guestId');
+        let guestUsername = localStorage.getItem('guestUsername');
+        
+        if (!guestId) {
+          guestId = generateGuestId();
+          localStorage.setItem('guestId', guestId);
+        }
+        
+        if (!guestUsername) {
+          guestUsername = generateGuestUsername();
+          localStorage.setItem('guestUsername', guestUsername);
+        }
+        
+        userData.userId = guestId;
+        userData.username = guestUsername;
+        userData.isGuest = true;
+        
+        // Track guest user in separate collection
+        const guestDoc = await guestUsersCollection.doc(guestId).get();
+        
+        if (!guestDoc.exists) {
+          await guestUsersCollection.doc(guestId).set({
+            username: guestUsername,
+            joinedTime: firebase.firestore.FieldValue.serverTimestamp(),
+            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+            isGuest: true,
+            activities: []
+          });
+        } else {
+          await guestUsersCollection.doc(guestId).update({
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+        
+        usernameElement.textContent = `@${guestUsername}`;
+      }
+      
+      // Track user activity
+      trackActivity('visited_profile_page');
+    }
+    
+    // Track specific user activities
+    async function trackActivity(activityType) {
+      const activity = {
+        type: activityType,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        page: window.location.pathname
+      };
+      
+      const collection = userData.isGuest ? guestUsersCollection : usersCollection;
+      
+      await collection.doc(userData.userId).update({
+        activities: firebase.firestore.FieldValue.arrayUnion(activity),
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    
     // Clipboard function
     function copyToClipboard() {
       const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot";
@@ -108,6 +238,7 @@
         console.error('Failed to copy:', err);
       });
       triggerHaptic();
+      trackActivity('copied_invite_link');
     }
 
     // Haptic feedback function
@@ -124,7 +255,12 @@
       );
       
       interactiveElements.forEach(element => {
-        element.addEventListener('click', triggerHaptic);
+        element.addEventListener('click', function() {
+          triggerHaptic();
+          // Track button clicks
+          const buttonText = this.innerText || this.getAttribute('class') || 'unknown_button';
+          trackActivity(`clicked_${buttonText.toLowerCase().replace(/\s+/g, '_')}`);
+        });
       });
     }
 
@@ -135,6 +271,7 @@
       navMenu.classList.toggle('active');
       hamburger.classList.toggle('active');
       triggerHaptic();
+      trackActivity('opened_menu');
     });
 
     // Navigation active state
@@ -145,6 +282,7 @@
       link.addEventListener('click', function() {
         navLinks.forEach(link => link.classList.remove('active'));
         this.classList.add('active');
+        trackActivity(`navigated_to_${this.getAttribute('href').replace('.html', '')}`);
       });
       
       if (link.getAttribute('href') === currentPage) {
@@ -168,10 +306,21 @@
       localStorage.setItem('theme', newTheme);
       themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
       triggerHaptic();
+      trackActivity(`changed_theme_to_${newTheme}`);
     });
 
     // Initialize when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initHapticFeedback);
+    document.addEventListener('DOMContentLoaded', () => {
+      initUserTracking();
+      initHapticFeedback();
+      
+      // Track external link clicks
+      document.querySelectorAll('a[target="_blank"]').forEach(link => {
+        link.addEventListener('click', () => {
+          trackActivity(`clicked_external_link_${link.innerText.toLowerCase().replace(/\s+/g, '_')}`);
+        });
+      });
+    });
   </script>
 </body>
 </html>
