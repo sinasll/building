@@ -229,6 +229,44 @@ form button {
   cursor: pointer;
 }
 
+#notes {
+  width: 90%;
+  padding: 8px;
+  font-size: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Press Start 2P', sans-serif;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+#notes:focus {
+  outline: none;
+  border: 1px dashed var(--border-color);
+  box-shadow: 0 0 5px var(--accent-color);
+}
+
+[data-theme="light"] #notes {
+    background-color: var(--background-color);
+}
+
+.trade-card .editable[data-field="notes"] {
+  display: block;
+  width: 100%;
+  padding: 5px;
+  margin-top: 5px;
+  border: 1px dashed var(--border-color);
+  min-height: 40px;
+}
+
+.trade-card .editable[data-field="notes"]:focus {
+  background-color: var(--background-color);
+}
+
+
 #filterContainer {
   margin-bottom: 20px;
   text-align: center;
