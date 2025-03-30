@@ -411,7 +411,7 @@ function shareTradeAsPDF(trade) {
   doc.text(`Buy/Sell: ${trade.buySell}`, 10, 90);
   doc.text(`Pips: ${trade.pips}`, 10, 100);
   doc.text(`Notes: ${trade.notes || 'No notes'}`, 10, 110);
-  doc.text(`Outcome: ${trade.outcome}`, 10, 110);
+  doc.text(`Outcome: ${trade.outcome}`, 10, 120);
 
   const pdfBlob = doc.output('blob');
 
