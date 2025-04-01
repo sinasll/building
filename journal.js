@@ -24,12 +24,11 @@ document.getElementById('tradeForm').addEventListener('submit', function(e) {
   const timeframe = document.getElementById('timeframe').value;
   const buySell = document.getElementById('buySell').value;
   const pips = document.getElementById('pips').value;
-  const notes = document.getElementById('notes').value; // Get notes
   const outcome = document.getElementById('outcome').value;
 
   // Create trade object
   const newTrade = {
-    date, time, session, pair, setup, entry, timeframe, buySell, pips, notes, outcome
+    date, time, session, pair, setup, entry, timeframe, buySell, pips, outcome
   };
 
   // Save to localStorage
@@ -72,7 +71,6 @@ function addTradeToCards(trade, index) {
       <p><strong>Timeframe:</strong> <span class="editable" data-field="timeframe">${trade.timeframe}</span></p>
       <p><strong>Buy/Sell:</strong> <span class="editable" data-field="buySell">${trade.buySell}</span></p>
       <p><strong>Pips:</strong> <span class="editable" data-field="pips">${trade.pips}</span></p>
-      <p><strong>Notes:</strong> <span class="editable" data-field="notes">${trade.notes || 'No notes'}</span></p>
       <p><strong>Outcome:</strong> <span class="editable" data-field="outcome">${trade.outcome}</span></p>
     </div>
     <div class="card-buttons">
@@ -365,7 +363,6 @@ function shareTradeAsText(trade) {
     Timeframe: ${trade.timeframe}
     Buy/Sell: ${trade.buySell}
     Pips: ${trade.pips}
-    Notes: ${trade.notes || 'No notes'}
     Outcome: ${trade.outcome}`;
 
   if (navigator.share) {
@@ -379,7 +376,7 @@ function shareTradeAsText(trade) {
 }
 
 function shareTradeAsCSV(trade) {
-  const csvContent = `Date,Time,Session,Pair,Setup,Playbook Entry,Timeframe,Buy/Sell,Pips,Notes,Outcome\n${trade.date},${trade.time},${trade.session},${trade.pair},${trade.setup},${trade.entry},${trade.timeframe},${trade.buySell},${trade.pips},"${trade.notes || ''}",${trade.outcome}`;
+  const csvContent = `Date,Time,Session,Pair,Setup,Playbook Entry,Timeframe,Buy/Sell,Pips,Outcome\n${trade.date},${trade.time},${trade.session},${trade.pair},${trade.setup},${trade.entry},${trade.timeframe},${trade.buySell},${trade.pips},${trade.outcome}`;
   const blob = new Blob([csvContent], { type: 'text/csv' });
 
   if (navigator.share) {
@@ -410,8 +407,7 @@ function shareTradeAsPDF(trade) {
   doc.text(`Timeframe: ${trade.timeframe}`, 10, 80);
   doc.text(`Buy/Sell: ${trade.buySell}`, 10, 90);
   doc.text(`Pips: ${trade.pips}`, 10, 100);
-  doc.text(`Notes: ${trade.notes || 'No notes'}`, 10, 110);
-  doc.text(`Outcome: ${trade.outcome}`, 10, 120);
+  doc.text(`Outcome: ${trade.outcome}`, 10, 110);
 
   const pdfBlob = doc.output('blob');
 
