@@ -10,176 +10,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
- <!-- Telegram WebApp SDK -->
- <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- Add this to your head section -->
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+   <!-- Telegram Analytics SDK -->
+ <script 
+ async 
+ src="https://tganalytics.xyz/index.js" 
+ onload="initAnalytics()" 
+ type="text/javascript"
+></script>
 <script>
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyAzXSCn_QL2XeyRZD71By443sl4wOtXf2Y",
-    authDomain: "pipcore-8844f.firebaseapp.com",
-    projectId: "pipcore-8844f",
-    storageBucket: "pipcore-8844f.firebasestorage.app",
-    messagingSenderId: "921115337984",
-    appId: "1:921115337984:web:17161651342ad78017bfe5",
-    measurementId: "G-RKL37B0B7N"
-  };
-
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  
-  // Enable offline persistence (important for reliability)
-  firebase.firestore().enablePersistence()
-    .catch((err) => {
-      console.log("Offline persistence failed:", err);
-    });
-
-  // Track current user
-  let currentUserRef = null;
-
-  // 1. USER INITIALIZATION ============================================
-  async function initializeUser() {
-    const tg = window.Telegram?.WebApp;
-    const tgUser = tg?.initDataUnsafe?.user;
-    
-    // Generate user ID (Telegram ID or guest ID)
-    const userId = tgUser?.id?.toString() || generateGuestId();
-    currentUserRef = db.collection('users').doc(userId);
-
-    try {
-      // Check if document exists
-      const doc = await currentUserRef.get();
-      
-      if (!doc.exists) {
-        // Create new user document
-        await currentUserRef.set({
-          username: tgUser?.username || `guest_${generateRandomString(6)}`,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          referrals: 0, // Initialize with 0 invites
-          invitedBy: null,
-          lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-          platform: tg ? 'telegram' : 'web'
-        });
-        console.log("New user created in Firestore");
-      } else {
-        // Update existing user
-        await currentUserRef.update({
-          lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-          username: tgUser?.username || doc.data().username // Keep existing if no Telegram username
-        });
-      }
-      
-      // Set up real-time listener for referral count
-      currentUserRef.onSnapshot((doc) => {
-        const data = doc.data();
-        if (data) {
-          document.getElementById('invite-count').textContent = data.referrals || 0;
-          console.log("Real-time update:", data.referrals);
-        }
-      });
-      
-    } catch (error) {
-      console.error("Firestore error:", error);
-      Telegram.WebApp.showAlert("Error initializing user. Please refresh.");
-    }
-  }
-
-  // 2. REFERRAL TRACKING =============================================
-  async function checkReferral() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const referralCode = urlParams.get('start');
-    
-    if (!referralCode || referralCode === currentUserRef.id) return;
-
-    try {
-      const referrerRef = db.collection('users').doc(referralCode);
-      
-      // Verify referrer exists
-      const referrerDoc = await referrerRef.get();
-      if (!referrerDoc.exists) {
-        console.log("Invalid referral code");
-        return;
-      }
-
-      // Update both users in a transaction
-      await db.runTransaction(async (transaction) => {
-        // 1. Increment referrer's count
-        transaction.update(referrerRef, {
-          referrals: firebase.firestore.FieldValue.increment(1)
-        });
-        
-        // 2. Mark current user as invited
-        transaction.update(currentUserRef, {
-          invitedBy: referralCode
-        });
-      });
-      
-      console.log("Referral tracked successfully");
-      Telegram.WebApp.showAlert(`🎉 Thanks for joining via ${referrerDoc.data().username}'s link!`);
-      
-    } catch (error) {
-      console.error("Referral tracking failed:", error);
-    }
-  }
-
-  // 3. UTILITY FUNCTIONS =============================================
-  function generateGuestId() {
-    let guestId = localStorage.getItem('guestId');
-    if (!guestId) {
-      guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-      localStorage.setItem('guestId', guestId);
-    }
-    return guestId;
-  }
-
-  function generateRandomString(length) {
-    return Math.random().toString(36).substr(2, length);
-  }
-
-  function generateReferralLink() {
-    if (!currentUserRef) return "#";
-    return `https://t.me/inbuild1bot?start=${currentUserRef.id}`;
-  }
-
-  function updateReferralUI() {
-    if (!currentUserRef) return;
-    document.getElementById('referral-link').value = generateReferralLink();
-    document.getElementById('username').textContent = 
-      `@${window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'guest'}`;
-  }
-
-  async function copyReferralLink() {
-    try {
-      await navigator.clipboard.writeText(generateReferralLink());
-      Telegram.WebApp.showAlert('Referral link copied!');
-      triggerHaptic();
-    } catch (error) {
-      console.error("Copy failed:", error);
-    }
-  }
-
-  // 4. INITIALIZATION ================================================
-  document.addEventListener('DOMContentLoaded', async () => {
-    await initializeUser();
-    await checkReferral();
-    updateReferralUI();
-    initHapticFeedback();
-    
-    // Verification: Log Firestore status
-    console.log("Firestore initialized. Current user ID:", currentUserRef?.id);
-    
-    // For debugging: Check collection exists
-    db.collection('users').limit(1).get()
-      .then(snap => {
-        console.log(`Users collection exists? ${!snap.empty}`);
-      });
+function initAnalytics() {
+  window.telegramAnalytics.init({
+    token: 'eyJhcHBfbmFtZSI6IlBpcENvcmUiLCJhcHBfdXJsIjoiaHR0cHM6Ly90Lm1lL3BpcGNvcmVib3Q/cHJvZmlsZSIsImFwcF9kb21haW4iOiJodHRwczovL3NpbmFzbGwuZ2l0aHViLmlvL1BpcENvcmUvIn0=!4SggM7v6aszOEalTectRvX5S+cTTBpCO2d/vQk+ouYs=',
+    appName: 'PipCore',
   });
+}
 </script>
 
+ <!-- Telegram WebApp SDK -->
+ <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+ <!-- TON Connect SDK -->
+ <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 
 <body>
@@ -240,159 +91,23 @@
         </div>
       </div>
     </div>
-    
-    <!-- Add this to your HTML where you want to display referral info -->
-<div class="referral-container">
-  <div class="referral-card">
-    <div class="referral-header">
-      <h2>Your Referrals</h2>
-      <div class="referral-stats">
-        <span class="stat-item">total invites ➜ <span id="invite-count">0</span></span>
+
+    <div class="invite-container">
+      <div class="invite-card">
+        <div class="invite-header"><h2>Invite Traders</h2></div>
+        <div class="invite-content">
+          <div class="share-buttons">
+            <a href="https://t.me/share/url?url=https://t.me/pipcorebot&text=Join%20PipCore%20and%20track%20your%20trading%20journey!%20PipCore%20is%20all%20you%20need." 
+               class="cta-button telegram-button">
+              Share PipCore
+            </a>
+          </div>
+          <div class="share-link-box">
+            <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="referral-content">
-      <div class="referral-link-box">
-        <input type="text" id="referral-link" readonly>
-        <button class="copy-button" onclick="copyReferralLink()">Copy</button>
-      </div>
-      <p class="referral-note"></p>
-    </div>
-  </div>
-</div>
-<style>
-  .referral-container {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 0 15px;
-}
-
-.referral-card {
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.referral-header {
-  margin-bottom: 20px;
-}
-
-.referral-stats {
-  display: flex;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.stat-item {
-  background: var(--button-bg);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.9em;
-}
-
-.referral-link-box {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-#referral-link {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--input-bg);
-  color: var(--text-color);
-}
-
-.referral-note {
-  font-size: 0.9em;
-  color: var(--secondary-text);
-  text-align: center;
-}
-
-
-</style>
-<script>
-  // Generate or retrieve user's referral code
-function getReferralCode() {
-  let userCode = localStorage.getItem('referralCode');
-  
-  if (!userCode) {
-    // Generate code based on available information
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    const baseCode = tgUser?.username || 
-                     tgUser?.id?.toString() || 
-                     localStorage.getItem('guestId') || 
-                     Date.now().toString(36);
-    
-    // Create a short unique code
-    userCode = `ref-${btoa(baseCode).slice(-8).replace(/=/g, '')}`;
-    localStorage.setItem('referralCode', userCode);
-  }
-  
-  return userCode;
-}
-
-// Track referrals in localStorage (temporary solution)
-function trackReferral(referralCode) {
-  if (!referralCode) return;
-  
-  let referrals = JSON.parse(localStorage.getItem('referrals') || '{}');
-  referrals[referralCode] = (referrals[referralCode] || 0) + 1;
-  localStorage.setItem('referrals', JSON.stringify(referrals));
-}
-
-// Get referral count for current user
-function getReferralCount() {
-  const userCode = getReferralCode();
-  const referrals = JSON.parse(localStorage.getItem('referrals') || '{}');
-  return referrals[userCode] || 0;
-}
-
-// Generate referral link
-function generateReferralLink() {
-  const baseUrl = 'https://t.me/inbuild1bot';
-  return `${baseUrl}?start=${getReferralCode()}`;
-}
-
-// Update UI elements
-function updateReferralUI() {
-  document.getElementById('referral-link').value = generateReferralLink();
-  document.getElementById('invite-count').textContent = getReferralCount();
-}
-
-// Check for referral parameter on launch
-function checkReferral() {
-  const params = new URLSearchParams(window.location.search);
-  const referralCode = params.get('start');
-  
-  if (referralCode && referralCode !== getReferralCode()) {
-    trackReferral(referralCode);
-    // Show confirmation
-    Telegram.WebApp.showAlert(`Thanks for using referral link!`);
-  }
-}
-
-// Copy referral link to clipboard
-function copyReferralLink() {
-  navigator.clipboard.writeText(generateReferralLink());
-  triggerHaptic();
-  Telegram.WebApp.showAlert('Referral link copied!');
-}
-
-// Initialize referral system
-function initReferralSystem() {
-  checkReferral();
-  updateReferralUI();
-}
-
-// Add to DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', () => {
-  initHapticFeedback();
-  initReferralSystem();
-});
-</script>
   </main>
 
   <script>
@@ -405,104 +120,190 @@ if (tg) {
   tg.enableClosingConfirmation();
 }
 
-// Generate a unique guest ID based on Telegram user ID or fallback to random
-function generateGuestUsername() {
-  // Try to get Telegram user ID first
-  const telegramUserId = tg?.initDataUnsafe?.user?.id;
-  
-  // If we have a Telegram user ID, use it to generate a consistent guest username
-  if (telegramUserId) {
-    return `guest_${telegramUserId.toString().slice(-6)}`;
-  }
-  
-  // Fallback for non-Telegram users - generate a random ID and store it
-  if (!localStorage.getItem('guestId')) {
-    const randomId = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    localStorage.setItem('guestId', `guest_${randomId}`);
-  }
-  return localStorage.getItem('guestId');
-}
-
-// Set username from Telegram or generate a persistent guest username
+// Set username from Telegram or default to guest
 const usernameElement = document.getElementById('username');
 if (tg?.initDataUnsafe?.user?.username) {
   usernameElement.textContent = `@${tg.initDataUnsafe.user.username}`;
 } else {
-  const guestUsername = generateGuestUsername();
-  usernameElement.textContent = `@${guestUsername}`;
+  usernameElement.textContent = "@guest";
 }
 
-// Clipboard function
-function copyToClipboard() {
-  const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot";
-  navigator.clipboard.writeText(message).catch(err => {
-    console.error('Failed to copy:', err);
+// TON Connect Initialization with minimal styling
+document.addEventListener('DOMContentLoaded', function() {
+  const body = document.body;
+  
+  // Initialize TON Connect with minimal effects
+  const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: 'https://sinasll.github.io/PipCore/tonconnect-manifest.json',
+    buttonRootId: 'ton-connect',
+    language: 'en',
+    uiPreferences: {
+      theme: body.getAttribute('data-theme') === 'dark' ? 'DARK' : 'LIGHT'
+    },
+    actionsConfiguration: {
+      modifyConnectButton: (button) => {
+        button.children[0].textContent = 'Connect TON Wallet';
+        // Apply minimal inline styles
+        Object.assign(button.style, {
+          all: 'unset',
+          width: '80%',
+          margin: '0 auto 15px auto',
+          padding: '12px 20px',
+          border: '2px solid var(--border-color)',
+          background: 'var(--background-color)',
+          color: 'var(--text-color)',
+          fontFamily: '"Press Start 2P", sans-serif',
+          fontSize: '12px',
+          textAlign: 'center',
+          cursor: 'pointer',
+          display: 'block'
+        });
+        return button;
+      }
+    }
   });
-  triggerHaptic();
-}
 
-// Haptic feedback function
-function triggerHaptic() {
-  if (window.Telegram?.WebApp?.HapticFeedback) {
-    window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+  // Add this inside your TON Connect initialization
+tonConnectUI.onStatusChange((wallet) => {
+  const tonButton = document.querySelector('#ton-connect button');
+  if (tonButton) {
+    // Update text based on connection status
+    tonButton.children[0].textContent = wallet ? 'Wallet Connected' : 'Connect TON Wallet';
+    
+    // Force reapply all styles
+    Object.assign(tonButton.style, {
+      all: 'unset',
+      width: '80%',
+      margin: '20px auto 15px auto',
+      padding: '12px 20px',
+      border: '2px solid var(--border-color)',
+      background: 'var(--background-color)',
+      color: 'var(--text-color)',
+      fontFamily: '"Press Start 2P", sans-serif',
+      fontSize: '12px',
+      textAlign: 'center',
+      cursor: 'pointer',
+      display: 'block'
+    });
+    
+    // Additional visual indicator (optional)
+    if (wallet) {
+      tonButton.style.borderColor = 'var(--accent-color)'; // Gold border when connected
+    } else {
+      tonButton.style.borderColor = 'var(--border-color)'; // Default border
+    }
   }
-}
-
-// Initialize haptic feedback
-function initHapticFeedback() {
-  const interactiveElements = document.querySelectorAll(
-    'button, a, .hamburger, .theme-toggle, .task-button, .cta-button, .copy-button'
-  );
-  
-  interactiveElements.forEach(element => {
-    element.addEventListener('click', triggerHaptic);
-  });
-}
-
-// Hamburger menu toggle
-const hamburger = document.getElementById('hamburger');
-const navMenu = document.getElementById('nav-menu');
-hamburger.addEventListener('click', () => {
-  navMenu.classList.toggle('active');
-  hamburger.classList.toggle('active');
-  triggerHaptic();
 });
 
-// Navigation active state
-const navLinks = document.querySelectorAll('.nav-list li a');
-const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-
-navLinks.forEach(link => {
-  link.addEventListener('click', function() {
-    navLinks.forEach(link => link.classList.remove('active'));
-    this.classList.add('active');
-  });
-  
-  if (link.getAttribute('href') === currentPage) {
-    link.classList.add('active');
+  // Theme synchronization
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      tonConnectUI.uiPreferences = {
+        theme: newTheme === 'dark' ? 'DARK' : 'LIGHT'
+      };
+    });
   }
+
+  // Simple observer for button changes
+  const observer = new MutationObserver(() => {
+    const tonButton = document.querySelector('#ton-connect button');
+    if (tonButton) {
+      Object.assign(tonButton.style, {
+        all: 'unset',
+        width: '80%',
+        margin: '0 auto 15px auto',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        border: '2px solid var(--border-color)',
+        background: 'var(--background-color)',
+        color: 'var(--text-color)',
+        fontFamily: '"Press Start 2P", sans-serif',
+        fontSize: '12px',
+        textAlign: 'center',
+        cursor: 'pointer',
+        display: 'block'
+      });
+    }
+  });
+  observer.observe(document.body, { subtree: true, childList: true });
 });
 
-// Theme toggle functionality
-const themeToggle = document.getElementById('theme-toggle');
-const body = document.body;
-const savedTheme = localStorage.getItem('theme') || 'dark';
+    // Clipboard function
+    function copyToClipboard() {
+      const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot";
+      navigator.clipboard.writeText(message).catch(err => {
+        console.error('Failed to copy:', err);
+      });
+      triggerHaptic();
+    }
 
-body.setAttribute('data-theme', savedTheme);
-themeToggle.innerHTML = `<i class="fas ${savedTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+    // Haptic feedback function
+    function triggerHaptic() {
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+      }
+    }
 
-themeToggle.addEventListener('click', () => {
-  const currentTheme = body.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  
-  body.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
-  triggerHaptic();
-});
+    // Initialize haptic feedback
+    function initHapticFeedback() {
+      const interactiveElements = document.querySelectorAll(
+        'button, a, .hamburger, .theme-toggle, .task-button, .cta-button, .copy-button'
+      );
+      
+      interactiveElements.forEach(element => {
+        element.addEventListener('click', triggerHaptic);
+      });
+    }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initHapticFeedback);
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    hamburger.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      hamburger.classList.toggle('active');
+      triggerHaptic();
+    });
+
+    // Navigation active state
+    const navLinks = document.querySelectorAll('.nav-list li a');
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    navLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        navLinks.forEach(link => link.classList.remove('active'));
+        this.classList.add('active');
+      });
+      
+      if (link.getAttribute('href') === currentPage) {
+        link.classList.add('active');
+      }
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    body.setAttribute('data-theme', savedTheme);
+    themeToggle.innerHTML = `<i class="fas ${savedTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.innerHTML = `<i class="fas ${newTheme === 'dark' ? 'fa-moon' : 'fa-sun'}"></i>`;
+      triggerHaptic();
+    });
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initHapticFeedback);
   </script>
 </body>
 </html>

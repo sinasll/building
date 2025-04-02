@@ -140,6 +140,56 @@ header {
   text-align: center;
 }
 
+/* TON Connect Button - Base Styles */
+#ton-connect {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto 0 auto;
+  padding: 0 15px;
+  text-align: center;
+}
+
+/* Disconnected State */
+#ton-connect > button {
+  all: unset;
+  width: 80%;
+  margin: 0 auto 15px auto;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+}
+
+/* Connected State */
+#ton-connect > button[aria-expanded="true"],
+#ton-connect > button[aria-expanded="false"] {
+  /* Maintain exact same styles as disconnected state */
+  all: unset;
+  width: 80%;
+  margin: 0 auto 15px auto;
+  padding: 12px 20px;
+
+  border: 2px solid var(--border-color);
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+}
+
+/* Optional: Visual feedback for connected state */
+#ton-connect > button[aria-expanded="true"] {
+  border-color: var(--accent-color); /* Gold border when connected */
+}
+
 .task-container {
   max-width: 600px;
   margin: 2rem auto;
