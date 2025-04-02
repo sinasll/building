@@ -220,7 +220,7 @@
             const data = doc.data();
             document.getElementById('invite-count').textContent = data.referrals || 0;
             document.getElementById('username').textContent = `@${data.telegramUsername || data.username}`;
-            document.getElementById('referral-link').value = `https://t.me/pipcorebot?start=${userRef.id}`;
+            document.getElementById('referral-link').value = `https://t.me/inbuild1bot?start=${userRef.id}`;
           }
         }, (error) => {
           console.error("Snapshot error:", error);
