@@ -52,10 +52,20 @@
     <div class="mining-display">
       <div class="token-count" id="token-count">0.000 pCORE</div>
       <div class="mining-stats">
-        <div class="mining-stat">Mining: <span id="mining-status">ON</span></div>
+        <div class="mining-stat">mining: <span id="mining-status">ON</span></div>
         <div class="mining-stat">0.001 pCORE/sec</div>
       </div>
     </div>
+
+    <!-- Leaderboard Section -->
+<div class="leaderboard-container">
+  <div class="leaderboard-card">
+    <h2 class="leaderboard-title"><i class="fas fa-trophy"></i> Leaderboard</h2>
+    <div class="leaderboard-list" id="leaderboard-list">
+      <div class="loader">Loading top miners...</div>
+    </div>
+  </div>
+</div>
 
     <div id="ton-connect" class="connectToWallet"></div>
 
@@ -102,7 +112,7 @@
         </div>
       </div>
     </div>
-  </main>
+  </main>  
 
   <script src="index.js"></script>
 </body>
