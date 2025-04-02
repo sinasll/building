@@ -140,6 +140,31 @@ header {
   text-align: center;
 }
 
+    /* Add mining display styles */
+    .mining-display {
+      text-align: center;
+      margin: 15px 0;
+      padding: 10px;
+      background: var(--background-color);
+    }
+    
+    .mining-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+    }
+    
+    .mining-stat {
+      font-size: 12px;
+      font-family: 'Press Start 2P', sans-serif;
+    }
+    
+    .token-count {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent-color);
+    }
+
 /* Enhanced Referral Section Styles */
 .referral-container {
   max-width: 100%;
