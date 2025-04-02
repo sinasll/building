@@ -46,7 +46,7 @@
               telegramUsername: tgUser?.username || null,
               referrals: 0,
               invitedBy: null,
-              invitedByUsername: null,
+              invitedById: null,
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               lastActive: firebase.firestore.FieldValue.serverTimestamp(),
               platform: tg ? 'telegram' : 'web',
@@ -134,27 +134,38 @@
       async function checkReferral(currentUserRef) {
         const urlParams = new URLSearchParams(window.location.search);
         const referralCode = urlParams.get('start');
-        
-        if (!referralCode || referralCode === currentUserRef.id) return;
+      
+        if (!referralCode) return;
       
         try {
-          const referrerRef = db.collection('users').doc(referralCode);
-          const referrerDoc = await referrerRef.get();
-          
-          if (!referrerDoc.exists) {
+          // Find referrer by referral code instead of user ID
+          const querySnapshot = await db.collection('users')
+            .where('referralCode', '==', referralCode)
+            .limit(1)
+            .get();
+      
+          if (querySnapshot.empty) {
             console.log("Invalid referral code");
             return;
           }
       
+          const referrerDoc = querySnapshot.docs[0];
+          const referrerRef = referrerDoc.ref;
           const referrerData = referrerDoc.data();
-          const referrerUsername = referrerData.telegramUsername || referrerData.username;
+      
+          // Prevent self-referral
+          if (referrerRef.id === currentUserRef.id) return;
       
           const currentUserData = (await currentUserRef.get()).data();
-          if (currentUserData.invitedBy && currentUserData.invitedBy !== referralCode) {
+          if (currentUserData.invitedBy) {
             console.log("User was already referred by someone else");
             return;
           }
-          
+      
+          const referrerUsername = referrerData.telegramUsername || 
+                                  referrerData.username || 
+                                  'unknown user';
+      
           await db.runTransaction(async (transaction) => {
             transaction.update(referrerRef, {
               referrals: firebase.firestore.FieldValue.increment(1),
@@ -162,15 +173,17 @@
             });
             
             transaction.update(currentUserRef, {
-              invitedBy: referralCode,
-              invitedByUsername: referrerUsername,
+              invitedBy: referrerData.telegramUsername ? 
+                        `@${referrerData.telegramUsername}` : 
+                        referrerData.username,
+              invitedById: referrerRef.id,
               referralDate: firebase.firestore.FieldValue.serverTimestamp()
             });
           });
-          
-          console.log(`Referred by @${referrerUsername}`);
-          showAlert(`🎉 Thanks for joining via @${referrerUsername}'s link!`);
-          
+      
+          console.log(`Referred by ${referrerUsername}`);
+          showAlert(`🎉 Thanks for joining via ${referrerUsername}'s link!`);
+      
         } catch (error) {
           console.error("Referral error:", error);
         }
@@ -220,7 +233,9 @@
             const data = doc.data();
             document.getElementById('invite-count').textContent = data.referrals || 0;
             document.getElementById('username').textContent = `@${data.telegramUsername || data.username}`;
-            document.getElementById('referral-link').value = `https://t.me/inbuild1bot?start=${userRef.id}`;
+            // Use referralCode instead of user ID
+            document.getElementById('referral-link').value = 
+              `https://t.me/inbuild1bot?start=${data.referralCode}`;
           }
         }, (error) => {
           console.error("Snapshot error:", error);
