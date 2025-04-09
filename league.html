@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PipCore</title>
+  <title>PipCore - League</title>
 
   <!-- Styles & Fonts -->
-  <link href="profile.css" rel="stylesheet" type="text/css">
+  <link href="league.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
- <!-- Telegram WebApp SDK -->
- <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- TON Connect SDK -->
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js" defer></script>
 
 </head>
 
@@ -28,7 +31,8 @@
         <h1 class="logotxt">PipCore</h1>
         <ul class="nav-list">
           <li><a href="index.html"><i class="fas fa-user"></i> Profile</a></li>
-          <li><a href="league.html"><i class="fas fa-trophy"></i> League</a></li>          <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="league.html"><i class="fas fa-trophy"></i> League</a></li>
+          <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
           <li><a href="journal.html"><i class="fas fa-book"></i> Journal</a></li>
           <li><a href="calendar.html"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
           <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
@@ -44,83 +48,82 @@
     <div class="user-info">
       <p id="username" class="username">@username</p>
     </div>
+    <div id="ton-connect"></div>
+    <!-- Pay Entry Fee Button -->
+    <button id="pay-entry-fee" class="pay-entry-fee-button" style="display:none;">Pay Entry Fee</button>
 
-    <div id="ton-connect" class="connectToWallet"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://sinasll.github.io/PipCore/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect',
+            uiOptions: {
+              theme: TON_CONNECT_UI.THEME.DARK
+            }
+          });
 
+          const payButton = document.getElementById('pay-entry-fee');
 
-    <div class="task-container">
-      <div class="task-card">
-        <div class="task-buttons">
-          <a href="https://t.me/pipcore" target="_blank" class="task-button telegram-task">
-            JOIN
-          </a>
+          // Function to handle wallet connection and transaction
+          async function connectAndSendTransaction() {
+            try {
+              // Connect to the wallet
+              const connectedWallet = await tonConnectUI.connectWallet();
+              console.log('Connected Wallet:', connectedWallet);
 
-          <a href="https://t.me/boost/pipcore" target="_blank" class="task-button telegram-task">
-            BOOST
-          </a>
+              // Enable pay entry fee button once wallet is connected
+              payButton.style.display = 'block';
 
-          <a href="https://x.com/pipcoretg" target="_blank" class="task-button twitter-task">
-            FOLLOW
-          </a>
-          
-          <a href="https://youtube.com/@pipcore?si=X0lglFcRFRmfE40k" target="_blank" class="task-button twitter-task">
-            SUBSCRIBE
-          </a>
-          
-         <a href="https://youtube.com/shorts/kjeHpbrR-zw?si=L3p_KD3gRLlQBjHB" target="_blank" class="task-button twitter-task">
-            WATCH
-          </a>
-          
-           <a href="https://youtube.com/shorts/j5P_K4MLNeo?si=rk1PfJdOQCrtP6ME" target="_blank" class="task-button twitter-task">
-            TUTORIAL
-          </a>
-        </div>
-      </div>
-    </div>
+              // Define the transaction details
+              const transaction = {
+                messages: [
+                  {
+                    address: "UQAPYvMU5LsUMKsXsM1kuizF5cnlX6BlA8zdYLJm7Ee5OTpg", // Your TON address
+                    amount: "1000000" // 0.001 TON in nanotons
+                  }
+                ]
+              };
 
-    <div class="invite-container">
-      <div class="invite-card">
-        <div class="invite-header"><h2>Invite Traders</h2></div>
-        <div class="invite-content">
-          <div class="share-buttons">
-            <a href="https://t.me/share/url?url=https://t.me/pipcorebot&text=Join%20PipCore%20and%20track%20your%20trading%20journey!%20PipCore%20is%20all%20you%20need." 
-               class="cta-button telegram-button">
-              Share PipCore
-            </a>
-          </div>
-          <div class="share-link-box">
-            <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
-          </div>
-        </div>
-      </div>
-    </div>
+              // Send the transaction when button is clicked
+              payButton.addEventListener('click', async () => {
+                try {
+                  const result = await tonConnectUI.sendTransaction(transaction);
+                  console.log('Transaction Result:', result);
+                  alert('Payment successful!');
+                } catch (error) {
+                  console.error('Error during transaction:', error);
+                  alert('Transaction failed');
+                }
+              });
+
+            } catch (error) {
+              console.error('Error during wallet connection:', error);
+            }
+          }
+
+          // Call the function to connect and send the transaction
+          connectAndSendTransaction();
+        });
+      </script>
+      
   </main>
 
   <script>
-// Telegram WebApp initialization
-const tg = window.Telegram?.WebApp;
+    // Telegram WebApp initialization
+    const tg = window.Telegram?.WebApp;
 
-// Expand the Mini App to full height
-if (tg) {
-  tg.expand();
-  tg.enableClosingConfirmation();
-}
+    // Expand the Mini App to full height
+    if (tg) {
+      tg.expand();
+      tg.enableClosingConfirmation();
+    }
 
-// Set username from Telegram or default to guest
-const usernameElement = document.getElementById('username');
-if (tg?.initDataUnsafe?.user?.username) {
-  usernameElement.textContent = `@${tg.initDataUnsafe.user.username}`;
-} else {
-  usernameElement.textContent = "@guest";
-}
-
-    // Clipboard function
-    function copyToClipboard() {
-      const message = "Join PipCore and track your trading journey! PipCore is all you need.\n\nhttps://t.me/pipcorebot";
-      navigator.clipboard.writeText(message).catch(err => {
-        console.error('Failed to copy:', err);
-      });
-      triggerHaptic();
+    // Set username from Telegram or default to guest
+    const usernameElement = document.getElementById('username');
+    if (tg?.initDataUnsafe?.user?.username) {
+      usernameElement.textContent = `@${tg.initDataUnsafe.user.username}`;
+    } else {
+      usernameElement.textContent = "@guest";
     }
 
     // Haptic feedback function
@@ -133,7 +136,7 @@ if (tg?.initDataUnsafe?.user?.username) {
     // Initialize haptic feedback
     function initHapticFeedback() {
       const interactiveElements = document.querySelectorAll(
-        'button, a, .hamburger, .theme-toggle, .task-button, .cta-button, .copy-button'
+        'button, a, .hamburger, .theme-toggle, .action-button'
       );
       
       interactiveElements.forEach(element => {
@@ -184,7 +187,10 @@ if (tg?.initDataUnsafe?.user?.username) {
     });
 
     // Initialize when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initHapticFeedback);
+    document.addEventListener('DOMContentLoaded', () => {
+      initHapticFeedback();
+      checkConnection();
+    });
   </script>
 </body>
 </html>

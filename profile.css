@@ -140,260 +140,6 @@ header {
   text-align: center;
 }
 
-    /* Add mining display styles */
-    .mining-display {
-      text-align: center;
-      margin: 15px 0;
-      padding: 10px;
-      background: var(--background-color);
-    }
-    
-    .mining-stats {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-    }
-    
-    .mining-stat {
-      font-size: 12px;
-      font-family: 'Press Start 2P', sans-serif;
-    }
-    
-    .token-count {
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--accent-color);
-    }
-
- /* Leaderboard Styles */
-.leaderboard-container {
-  max-width: 100%;
-  margin: 20px auto;
-  padding: 0 15px;
-}
-
-.leaderboard-card {
-  background: var(--background-color);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin: 10px 0;
-  box-shadow: 0 0 10px rgba(230, 179, 60, 0.2);
-}
-
-.leaderboard-header {
-  text-align: center;
-  margin-bottom: 1.3rem;
-  padding: 10px;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.leaderboard-header h2 {
-  color: var(--text-color);
-  font-size: 20px;
-  margin-bottom: 0.5rem;
-  font-family: 'Press Start 2P', sans-serif;
-}
-
-.leaderboard-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.leaderboard-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.8rem;
-  background: var(--background-color);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 12px;
-}
-
-.leaderboard-rank {
-  width: 30px;
-  font-weight: bold;
-  color: var(--accent-color);
-  font-family: 'Press Start 2P', sans-serif;
-}
-
-.leaderboard-user {
-  flex-grow: 1;
-  margin: 0 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: 'Press Start 2P', sans-serif;
-}
-
-.leaderboard-tokens {
-  font-family: 'Press Start 2P', sans-serif;
-  color: var(--text-color);
-}
-
-.loader {
-  text-align: center;
-  padding: 1rem;
-  color: var(--text-color);
-  font-family: 'Press Start 2P', sans-serif;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .leaderboard-header h2 {
-    font-size: 16px;
-  }
-  
-  .leaderboard-item {
-    font-size: 10px;
-    padding: 0.6rem;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .leaderboard-card {
-    padding: 1rem;
-  }
-  
-  .leaderboard-header h2 {
-    font-size: 14px;
-  }
-}
-
-/* Enhanced Referral Section Styles */
-.referral-container {
-  max-width: 100%;
-  margin: 20px auto;
-  padding: 0 15px;
-}
-
-.referral-card {
-  background: var(--background-color);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin: 10px 0;
-  box-shadow: 0 0 10px rgba(230, 179, 60, 0.2);
-}
-
-.referral-header {
-  text-align: center;
-  margin-bottom: 1.3rem;
-  padding: 10px;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.referral-header h2 {
-  color: var(--text-color);
-  font-size: 20px;
-  margin-bottom: 0.5rem;
-  font-family: 'Press Start 2P', sans-serif;
-}
-
-.referral-stats {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.stat-item {
-  background: var(--background-color);
-  border: 2px solid var(--border-color);
-  padding: 8px 16px;
-  font-size: 12px;
-  font-family: 'Press Start 2P', sans-serif;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--text-color);
-}
-
-.stat-item i {
-  font-size: 14px;
-  color: var(--icon-color);
-}
-
-.referral-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.referral-button {
-  font-family: 'Press Start 2P', sans-serif;
-  font-size: 12px;
-  color: var(--text-color);
-  border: 2px solid var(--border-color);
-  padding: 12px 20px;
-  background: var(--background-color);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-.referral-button:active {
-  transform: translateY(0);
-}
-
-.referral-note {
-  font-size: 10px;
-  color: var(--text-color);
-  text-align: center;
-  margin-top: 15px;
-  opacity: 0.8;
-  font-family: 'Press Start 2P', sans-serif;
-}
-
-/* Hidden link container */
-.hidden-link {
-  position: absolute;
-  left: -9999px;
-}
-
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .referral-header h2 {
-    font-size: 12px;
-  }
-  
-  .stat-item {
-    font-size: 12px;
-    padding: 6px 12px;
-    margin-bottom: 10px;
-  }
-  
-  .referral-button {
-    font-size: 12px;
-    padding: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .referral-card {
-    padding: 1rem;
-  }
-  
-  .referral-header h2 {
-    font-size: 12px;
-  }
-  
-  .referral-note {
-    font-size: 8px;
-  }
-}
-
 .task-container {
   max-width: 600px;
   margin: 2rem auto;
@@ -451,11 +197,21 @@ header {
   width: 80%;
 }
 
+.task-button:hover {
+  background: var(--accent-color);
+  color: var(--background-color);
+  transform: translateY(-2px);
+}
 
 .telegram-task, .twitter-task {
   background: var(--background-color);
   color: var(--text-color);
   border-color: var(--border-color);
+}
+
+.telegram-task:hover, .twitter-task:hover {
+  background: var(--accent-color);
+  color: var(--background-color);
 }
 
 .invite-container {
@@ -573,19 +329,6 @@ header {
   color: inherit;
 }
 
-.connect-wallet {
-  font-size: 14px;
-  font-family: 'Press Start 2P', sans-serif;
-  font-weight: bold;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  padding: 12px 15px;
-  text-align: center;
-  width: 100%;
-  margin-top: 30px;
-  background-color: transparent;
-  cursor: pointer;
-}
 
 main {
   padding-top: 35%;
